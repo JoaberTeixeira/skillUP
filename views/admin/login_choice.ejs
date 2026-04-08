@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Escolha de Login</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('cabecario', { titulo: 'Acesso ao Sistema' }) %>
+
+    <div class="login-choice-container">
+        <h1>Entrar no Sistema</h1>
+        <p>Escolha o tipo de usuário:</p>
+        <div class="login-choice-options">
+            <a href="/login/professor" class="login-choice-btn btn-professor">Professor</a>
+            <a href="/login/aluno" class="login-choice-btn btn-aluno">Aluno</a>
+        </div>
+        <p class="login-helper">use professor@wiki.com e aluno@wiki.com (senha: senha123)</p>
+        <p><a href="/setup/users">Criar usuários de exemplo</a></p>
+        <p><a href="/register">Cadastrar novo usuário</a></p>
+    </div>
+</body>
+</html>

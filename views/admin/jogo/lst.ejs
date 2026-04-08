@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Feed de Postagens</title>
+<body>
+
+    <%- include('../cabecario', { titulo: 'WikiOsasco - Sistema Administrativo' }) %>
+
+    <div class="content">
+        <h1>Feed de Postagens</h1>
+
+        <div class="feed feed-scroll">
+            <% if (postagens && postagens.length) { %>
+                <% postagens.forEach(function(postagem) { %>
+                    <div class="social-post">
+                        <div class="post-header">
+                            <div class="avatar"><%= (postagem.autorNome || 'U').slice(0, 1) %></div>
+                            <div>
+                                <div class="post-user"><%= postagem.autorNome || 'Usuario sem nome' %> (<%= postagem.autorRole || '-' %>)</div>
+                                <% const dataPost = postagem.createdAt ? new Date(postagem.createdAt) : postagem._id.getTimestamp(); %>
+                                <div class="post-meta">Publicado em <%= dataPost.toLocaleString('pt-BR') %></div>
+                            </div>
+                        </div>
+                        <div class="post-body">
+                            <h3><%= postagem.titulo %></h3>
+                            <p><%= postagem.descricao %></p>
+                            <% if (postagem.midia) { %>
+                                <div class="post-media">
+                                    <% const isVideo = /\.(mp4|webm|ogg)$/i.test(postagem.midia); %>
+                                    <% if (isVideo) { %>
+                                        <video src="<%= postagem.midia %>" controls></video>
+                                    <% } else { %>
+                                        <img src="<%= postagem.midia %>" alt="Midia da postagem">
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="social-post">
+                    <div class="no-posts">
+                        <h3>Sem postagens no feed</h3>
+                        <p>Crie postagens em "Postagens" para preencher o feed com conteúdo.</p>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

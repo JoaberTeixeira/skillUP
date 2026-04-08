@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login <%= role %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('cabecario', { titulo: 'Acesso ao Sistema' }) %>
+
+    <div class="login-container">
+        <h1>Login como <%= role === 'professor' ? 'Professor' : 'Aluno' %></h1>
+        <% if (error) { %>
+            <p class="login-error"><%= error %></p>
+        <% } %>
+        <form method="post" action="/login">
+            <input type="hidden" name="role" value="<%= role %>">
+            <div>
+                <label>Email:</label>
+                <input type="email" name="email" required>
+            </div>
+            <div>
+                <label>Senha:</label>
+                <input type="password" name="senha" required>
+            </div>
+            <button type="submit">Entrar</button>
+        </form>
+        <p>Use <strong>professor@wiki.com</strong> ou <strong>aluno@wiki.com</strong> com senha <strong>senha123</strong></p>
+        <p><a href="/login">Voltar</a></p>
+    </div>
+</body>
+</html>

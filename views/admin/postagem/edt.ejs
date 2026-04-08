@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Postagem</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <%- include('../cabecario', { titulo: 'WikiOsasco - Sistema Administrativo' }) %>
+    <div class="container">
+        <h3>Editar Postagem</h3>
+
+        <form action="/admin/postagem/edt/<%= postagem._id %>" method="post" enctype="multipart/form-data">
+            <label>Autor:</label>
+            <input type="text" value="<%= postagem.autorNome || 'Sem autor' %> (<%= postagem.autorRole || '-' %>)" readonly>
+
+            <label for="titulo">Titulo:</label>
+            <input type="text" id="titulo" name="titulo" value="<%= postagem.titulo %>" required>
+
+            <label for="midia">Midia (imagem ou video):</label>
+            <% if (postagem.midia) { %>
+                <% const isVideo = /\.(mp4|webm|ogg)$/i.test(postagem.midia); %>
+                <% if (isVideo) { %>
+                    <video src="<%= postagem.midia %>" controls class="media-preview"></video>
+                <% } else { %>
+                    <img src="<%= postagem.midia %>" alt="Midia atual" class="media-preview">
+                <% } %>
+            <% } %>
+            <input type="file" id="midia" name="midia" accept="image/*,video/*">
+
+            <label for="descricao">Descricao:</label>
+            <input type="text" id="descricao" name="descricao" value="<%= postagem.descricao %>" required>
+
+            <button type="submit">Salvar</button>
+        </form>
+
+        <div class="add-player">
+            <a href="/admin/postagem/add" class="btn">+ Jogador</a>
+        </div>
+
+
+
+</body>
+
+</html>

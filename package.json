@@ -1,0 +1,19 @@
+{
+  "name": "node6info",
+  "version": "1.0.0",
+  "description": "revisando",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.19.0",
+    "mongoose": "8.3.4",
+    "multer": "^1.4.5-lts.1"
+  }
+}

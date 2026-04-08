@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../cabecario', { titulo: 'WikiOsasco - Perfil' }) %>
+
+    <div class="container">
+        <div class="perfil-topo">
+            <div class="avatar">
+                <% if (socio.foto) { %>
+                    <img src="<%= socio.foto %>" alt="Foto de perfil">
+                <% } else { %>
+                    <span><%= socio.nome ? socio.nome.slice(0, 1) : 'U' %></span>
+                <% } %>
+            </div>
+            <div>
+                <h1><%= socio.nome %></h1>
+                <p class="perfil-role">Perfil: <strong><%= socio.role %></strong></p>
+            </div>
+        </div>
+
+        <div class="linha"><span class="label">Email:</span> <%= socio.email %></div>
+        <div class="linha"><span class="label">CPF:</span> <%= socio.cpf %></div>
+        <div class="linha"><span class="label">Telefone:</span> <%= socio.telefone || 'Nao informado' %></div>
+        <div class="linha"><span class="label">Bio:</span> <%= socio.bio || 'Sem bio' %></div>
+
+        <div class="acoes">
+            <a href="/admin/perfil/edt" class="btn">Editar Meu Perfil</a>
+        </div>
+    </div>
+</body>
+</html>

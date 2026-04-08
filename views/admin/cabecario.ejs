@@ -1,0 +1,26 @@
+<header>
+    <div class="logo-container">
+        <img src="/fotos/Wiki_logo2(1)(1).png" alt="Logo Time de Vôlei">
+        <div class="logo-text"><%= typeof titulo !== 'undefined' ? titulo : 'WikiOsasco - Sistema Administrativo' %></div>
+    </div>
+    <nav>
+        <ul>
+            <% if (user) { %>
+                <li><a href="/">Home</a></li>
+                <% if (user.role === 'professor') { %>
+                    <li><a href="/admin/postagem/lst">Postagens</a></li>
+                <% } %>
+                <li><a href="/admin/perfil">Meu Perfil</a></li>
+                <li><span class="logged-user"><%= user.nome %> (<%= user.role %>)</span></li>
+                <li>
+                    <form action="/logout" method="post">
+                        <button type="submit" class="logout-btn">Sair</button>
+                    </form>
+                </li>
+            <% } else { %>
+                <li><a href="/login">Entrar</a></li>
+                <li><a href="/setup/users">Criar Usuários</a></li>
+            <% } %>
+        </ul>
+    </nav>
+</header>

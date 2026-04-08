@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postagens</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <%- include('../cabecario', { titulo: 'WikiOsasco' }) %>
+
+    <div class="container">
+        <h3>Postagens</h3>
+
+        <table class="player-table">
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Midia</th>
+                    <th>Descricao</th>
+                    <th>Autor</th>
+                    <th>Opções</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (postagens && postagens.length) { %>
+                    <% postagens.forEach(function(postagem) { %>
+                        <tr>
+                            <td><%= postagem.titulo %></td>
+                            <td>
+                                <% if (postagem.midia) { %>
+                                    <% const isVideo = /\.(mp4|webm|ogg)$/i.test(postagem.midia); %>
+                                    <% if (isVideo) { %>
+                                        <video src="<%= postagem.midia %>" controls class="media-thumb"></video>
+                                    <% } else { %>
+                                        <img src="<%= postagem.midia %>" alt="Midia" class="media-thumb">
+                                    <% } %>
+                                <% } %>
+                            </td>
+                            <td><%= postagem.descricao %></td>
+                            <td><%= postagem.autorNome || 'Sem autor' %> (<%= postagem.autorRole || '-' %>)</td>
+                            <td>
+                                <a href="/admin/postagem/edt/<%= postagem._id %>" class="edit">Editar</a>
+                                <a href="/admin/postagem/del/<%= postagem._id %>" class="delete">Excluir</a>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5">Nenhuma postagem cadastrada.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <% if (user && user.role === 'professor') { %>
+            <div class="add-player">
+                <a href="/admin/postagem/add" class="btn">Adicionar postagem</a>
+            </div>
+        <% } else { %>
+            <p class="page-subtitle">Apenas professores podem criar postagens.</p>
+        <% } %>
+    </div>
+
+</body>
+
+</html>
