@@ -7,6 +7,7 @@
         <ul>
             <% if (user) { %>
                 <li><a href="/">Home</a></li>
+                    <li><a href="/admin/feed/lst">Feed</a></li>
                 <% if (user.role === 'professor') { %>
                     <li><a href="/admin/postagem/lst">Postagens</a></li>
                 <% } %>
@@ -19,7 +20,7 @@
                 </li>
             <% } else { %>
                 <li><a href="/login">Entrar</a></li>
-                <li><a href="/setup/users">Criar Usuários</a></li>
+                <li><a href="/register">Criar Usuários</a></li>
             <% } %>
         </ul>
     </nav>

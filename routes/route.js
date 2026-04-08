@@ -44,7 +44,7 @@ import {
   logout,
   perfil, abreedtperfil, edtperfil,
   abreedtpostagem, edtpostagem, abreaddpostagem, deletapostagem, addpostagem, listarpostagem, filtrarpostagem,
-  abreedtjogo, edtjogo, deletajogo, listarjogo, filtrarjogo,
+  abreedtfeed, edtfeed, deletafeed, listarfeed, filtrarfeed, abreaddFeed, addfeed,
 } from '../controllers/controller.js';
 
 // PUBLICAS
@@ -72,11 +72,13 @@ router.get('/admin/postagem/del/:id', requireProfessor, deletapostagem);
 router.get('/admin/postagem/edt/:id', requireProfessor, abreedtpostagem);
 router.post('/admin/postagem/edt/:id', requireProfessor, upload.single('midia'), edtpostagem);
 
-// JOGO
-router.get('/admin/jogo/lst', listarjogo);
-router.post('/admin/jogo/lst', filtrarjogo);
-router.get('/admin/jogo/del/:id', deletajogo);
-router.get('/admin/jogo/edt/:id', abreedtjogo);
-router.post('/admin/jogo/edt/:id', edtjogo);
+// FEED
+router.get('/admin/feed/add', abreaddFeed);
+router.post('/admin/feed/add', addfeed);
+router.get('/admin/feed/lst', listarfeed);
+router.post('/admin/feed/lst', filtrarfeed);
+router.get('/admin/feed/del/:id', deletafeed);
+router.get('/admin/feed/edt/:id', abreedtfeed);
+router.post('/admin/feed/edt/:id', edtfeed);
 
 export default router;

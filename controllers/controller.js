@@ -1,6 +1,6 @@
 import Socio from "../models/socio.js";
 import Postagem from "../models/postagem.js";
-import Jogo from "../models/jogo.js";
+import Feed from "../models/feed.js";
 import { canManagePost } from "../middlewares/auth.js";
 
 export async function home(req, res) {
@@ -406,63 +406,81 @@ export async function edtsocio(req, res) {
     }
 }
 
-// -------JOGOS--------
+// -------FEED--------
 
-export async function listarjogo(req, res) {
+export async function abreaddFeed(req, res) {
+    res.render('admin/feed/add');
+}
+
+export async function addfeed(req, res) {
     try {
-        const jogos = await Jogo.find();
-        const postagens = await Postagem.find().sort({ createdAt: -1, _id: -1 });
-        res.render('admin/jogo/lst', { jogos, postagens });
+        await Feed.create({
+            adversario: req.body.adversario,
+            data: new Date(req.body.data),
+            local: req.body.local,
+            resultado: req.body.resultado || ''
+        });
+        res.redirect('/admin/feed/lst');
     } catch (err) {
-        res.status(500).send('Erro ao listar jogos: ' + err.message);
+        res.status(500).send('Erro ao adicionar feed: ' + err.message);
     }
 }
 
-export async function filtrarjogo(req, res) {
+export async function listarfeed(req, res) {
+    try {
+        const feeds = await Feed.find();
+        const postagens = await Postagem.find().sort({ createdAt: -1, _id: -1 });
+        res.render('admin/feed/lst', { feeds, postagens });
+    } catch (err) {
+        res.status(500).send('Erro ao listar feeds: ' + err.message);
+    }
+}
+
+export async function filtrarfeed(req, res) {
     try {
         const busca = req.body.busca || '';
-        const jogos = await Jogo.find({ adversario: new RegExp(busca, 'i') });
+        const feeds = await Feed.find({ adversario: new RegExp(busca, 'i') });
         const postagens = await Postagem.find().sort({ createdAt: -1, _id: -1 });
-        res.render('admin/jogo/lst', { jogos, postagens });
+        res.render('admin/feed/lst', { feeds, postagens });
     } catch (err) {
-        res.status(500).send('Erro ao filtrar jogos: ' + err.message);
+        res.status(500).send('Erro ao filtrar feeds: ' + err.message);
     }
 }
 
-export async function deletajogo(req, res) {
+export async function deletafeed(req, res) {
     const d = req.params.id;
     try {
-        await Jogo.findByIdAndDelete(d);
-        res.redirect('/admin/jogo/lst');
+        await Feed.findByIdAndDelete(d);
+        res.redirect('/admin/feed/lst');
     } catch (err) {
-        res.status(500).send('Erro ao deletar jogo: ' + err.message);
+        res.status(500).send('Erro ao deletar feed: ' + err.message);
     }
 }
 
-export async function abreedtjogo(req, res) {
+export async function abreedtfeed(req, res) {
     const id = req.params.id;
     try {
-        const jogo = await Jogo.findById(id);
-        if (!jogo) {
-            return res.status(404).send('Jogo nao encontrado');
+        const feed = await Feed.findById(id);
+        if (!feed) {
+            return res.status(404).send('Feed nao encontrado');
         }
-        res.render('admin/jogo/edt', { jogo });
+        res.render('admin/feed/edt', { feed });
     } catch (error) {
-        res.status(500).send('Erro ao buscar o jogo: ' + error.message);
+        res.status(500).send('Erro ao buscar o feed: ' + error.message);
     }
 }
 
-export async function edtjogo(req, res) {
+export async function edtfeed(req, res) {
     const e = req.params.id;
     try {
-        await Jogo.findByIdAndUpdate(e, {
+        await Feed.findByIdAndUpdate(e, {
             adversario: req.body.adversario,
             data: new Date(req.body.data),
             local: req.body.local,
             resultado: req.body.resultado
         });
-        res.redirect('/admin/jogo/lst');
+        res.redirect('/admin/feed/lst');
     } catch (err) {
-        res.status(500).send('Erro ao editar jogo: ' + err.message);
+        res.status(500).send('Erro ao editar feed: ' + err.message);
     }
 }
