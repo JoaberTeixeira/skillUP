@@ -7,28 +7,28 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <%- include('../cabecario', { titulo: 'WikiOsasco - Editar Perfil' }) %>
+    <%- include('../cabecario', { titulo: 'SkillUP - Editar Perfil' }) %>
 
     <div class="container">
         <h1>Editar Meu Perfil</h1>
         <form action="/admin/perfil/edt" method="post" enctype="multipart/form-data">
             <label for="nome">Nome</label>
-            <input id="nome" name="nome" type="text" value="<%= socio.nome %>" required>
+            <input id="nome" name="nome" type="text" value="<%= usuario.nome %>" required>
 
             <label for="email">Email</label>
-            <input id="email" name="email" type="email" value="<%= socio.email %>" required>
+            <input id="email" name="email" type="email" value="<%= usuario.email %>" required>
 
             <label for="foto">Foto de perfil (arquivo)</label>
-            <% if (socio.foto) { %>
-                <img src="<%= socio.foto %>" alt="Foto atual" class="media-preview">
+            <% if (usuario.foto) { %>
+                <img src="<%= usuario.foto %>" alt="Foto atual" class="media-preview">
             <% } %>
             <input id="foto" name="foto" type="file" accept="image/*">
 
             <label for="telefone">Telefone</label>
-            <input id="telefone" name="telefone" type="text" value="<%= socio.telefone || '' %>">
+            <input id="telefone" name="telefone" type="text" value="<%= usuario.telefone || '' %>">
 
             <label for="bio">Bio</label>
-            <textarea id="bio" name="bio"><%= socio.bio || '' %></textarea>
+            <textarea id="bio" name="bio"><%= usuario.bio || '' %></textarea>
 
             <label for="senha">Nova senha (opcional)</label>
             <input id="senha" name="senha" type="password">

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Postagem</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <%- include('../cabecario', { titulo: 'SkillUP - Adicionar Postagem' }) %>
+
+    <div class="form-container">
+        <form action="" method="post" enctype="multipart/form-data">
+            <h3>Informações da Postagem</h3>
+            <p class="post-author">Autor: <strong><%= user.nome %></strong> (<%= user.role %>)</p>
+
+            <label for="titulo">Titulo:</label>
+            <input type="text" id="titulo" name="titulo" required>
+
+            <label for="midia">Midia (imagem ou video):</label>
+            <input type="file" id="midia" name="midia" accept="image/*,video/*" required>
+
+            <label for="descricao">Descricao:</label>
+            <input type="text" id="descricao" name="descricao" required>
+
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+
+</body>
+
+</html>

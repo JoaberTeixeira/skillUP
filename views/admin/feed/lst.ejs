@@ -10,14 +10,32 @@
 
 <body>
 
-    <%- include('../cabecario', { titulo: 'SkillUP' }) %>
+    <%- include('../cabecario', { titulo: 'SkillUP - sistema de aprendizagem' }) %>
 
     <div class="content">
         <h1>Feed</h1>
 
-        <div class="add-player">
-            <a href="/admin/feed/add" class="add-link">Adicionar Novo Feed</a>
-        </div>
+        <form action="/admin/feed/lst" method="post" class="feed-filter-form">
+            <label for="categoria">Filtrar por categoria:</label>
+            <select id="categoria" name="categoria">
+                <% if (categorias && categorias.length) { %>
+                    <% categorias.forEach(function(cat) { %>
+                        <option value="<%= cat %>" <%= selectedCategoria === cat ? 'selected' : '' %>><%= cat === 'todas' ? 'Todas' : cat.charAt(0).toUpperCase() + cat.slice(1) %></option>
+                    <% }); %>
+                <% } else { %>
+                    <option value="todas" selected>Todas</option>
+                    <option value="esporte">Esporte</option>
+                <% } %>
+            </select>
+            <button type="submit">Filtrar</button>
+        </form>
+
+        <% function getVideoMimeType(url) {
+            if (/\.mp4$/i.test(url)) return 'video/mp4';
+            if (/\.webm$/i.test(url)) return 'video/webm';
+            if (/\.ogg$/i.test(url)) return 'video/ogg';
+            return 'video/mp4';
+        } %>
 
         <% if (postagens && postagens.length) { %>
             <div style="margin-top: 60px;">
@@ -26,11 +44,19 @@
                     <% postagens.forEach(function(postagem) { %>
                         <div class="social-post">
                             <div class="post-header">
-                                <div class="avatar"><%= (postagem.autorNome || 'U').slice(0, 1) %></div>
+                                <div class="avatar">
+                                    <% const fotoAutor = postagem.autorFoto || (postagem.autorId && postagem.autorId.foto); %>
+                                    <% if (fotoAutor) { %>
+                                        <img src="<%= fotoAutor %>" alt="Foto do autor">
+                                    <% } else { %>
+                                        <%= (postagem.autorNome || 'U').slice(0, 1) %>
+                                    <% } %>
+                                </div>
                                 <div>
                                     <div class="post-user"><%= postagem.autorNome || 'Usuario sem nome' %> (<%= postagem.autorRole || '-' %>)</div>
                                     <% const dataPost = postagem.createdAt ? new Date(postagem.createdAt) : postagem._id.getTimestamp(); %>
                                     <div class="post-meta">Publicado em <%= dataPost.toLocaleString('pt-BR') %></div>
+                                    <div class="post-meta">Categoria: <%= postagem.categoria ? postagem.categoria.charAt(0).toUpperCase() + postagem.categoria.slice(1) : 'N/A' %></div>
                                 </div>
                             </div>
                             <div class="post-body">
@@ -40,12 +66,36 @@
                                     <div class="post-media">
                                         <% const isVideo = /\.(mp4|webm|ogg)$/i.test(postagem.midia); %>
                                         <% if (isVideo) { %>
-                                            <video src="<%= postagem.midia %>" controls></video>
+                                            <video controls preload="metadata">
+                                                <source src="<%= postagem.midia %>" type="<%= getVideoMimeType(postagem.midia) %>">
+                                                Seu navegador nao suporta este video.
+                                            </video>
                                         <% } else { %>
                                             <img src="<%= postagem.midia %>" alt="Midia da postagem">
                                         <% } %>
                                     </div>
                                 <% } %>
+                                <div class="post-actions">
+                                    <% const likedByUser = user && postagem.curtidas && postagem.curtidas.some((like) => like.toString() === user.id); %>
+                                    <form action="/admin/postagem/like/<%= postagem._id %>" method="post" class="post-action-form">
+                                        <button type="submit" class="btn-action"><%= likedByUser ? 'Descurtir' : 'Curtir' %> (<%= postagem.curtidas ? postagem.curtidas.length : 0 %>)</button>
+                                    </form>
+                                    <span class="comment-count"><%= postagem.comentarios ? postagem.comentarios.length : 0 %> comentários</span>
+                                </div>
+                                <div class="comments-list">
+                                    <% if (postagem.comentarios && postagem.comentarios.length) { %>
+                                        <% postagem.comentarios.slice(-3).reverse().forEach(function(comment) { %>
+                                            <div class="comment-item">
+                                                <strong><%= comment.autorNome %></strong> <span class="comment-meta">(<%= comment.autorRole %>)</span>
+                                                <p><%= comment.texto %></p>
+                                            </div>
+                                        <% }) %>
+                                    <% } %>
+                                </div>
+                                <form action="/admin/postagem/comment/<%= postagem._id %>" method="post" class="comment-form">
+                                    <textarea name="texto" placeholder="Adicione um comentário..." required></textarea>
+                                    <button type="submit" class="btn-action">Enviar comentário</button>
+                                </form>
                             </div>
                         </div>
                     <% }) %>

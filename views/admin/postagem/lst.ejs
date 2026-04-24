@@ -10,15 +10,22 @@
 
 <body>
 
-    <%- include('../cabecario', { titulo: 'WikiOsasco' }) %>
+    <%- include('../cabecario', { titulo: 'SkillUP - sistema de aprendizagem' }) %>
 
     <div class="container">
+        <% function getVideoMimeType(url) {
+            if (/\.mp4$/i.test(url)) return 'video/mp4';
+            if (/\.webm$/i.test(url)) return 'video/webm';
+            if (/\.ogg$/i.test(url)) return 'video/ogg';
+            return 'video/mp4';
+        } %>
         <h3>Postagens</h3>
 
         <table class="player-table">
             <thead>
                 <tr>
                     <th>Titulo</th>
+                    <th>Categoria</th>
                     <th>Midia</th>
                     <th>Descricao</th>
                     <th>Autor</th>
@@ -30,27 +37,39 @@
                     <% postagens.forEach(function(postagem) { %>
                         <tr>
                             <td><%= postagem.titulo %></td>
+                            <td><%= postagem.categoria ? postagem.categoria.charAt(0).toUpperCase() + postagem.categoria.slice(1) : 'N/A' %></td>
                             <td>
                                 <% if (postagem.midia) { %>
                                     <% const isVideo = /\.(mp4|webm|ogg)$/i.test(postagem.midia); %>
                                     <% if (isVideo) { %>
-                                        <video src="<%= postagem.midia %>" controls class="media-thumb"></video>
+                                        <video controls preload="metadata" class="media-thumb">
+                                            <source src="<%= postagem.midia %>" type="<%= getVideoMimeType(postagem.midia) %>">
+                                            Seu navegador nao suporta este video.
+                                        </video>
                                     <% } else { %>
                                         <img src="<%= postagem.midia %>" alt="Midia" class="media-thumb">
                                     <% } %>
                                 <% } %>
                             </td>
                             <td><%= postagem.descricao %></td>
-                            <td><%= postagem.autorNome || 'Sem autor' %> (<%= postagem.autorRole || '-' %>)</td>
+                            <td class="author-cell">
+                                <% const autorFoto = postagem.autorFoto || (user && user.foto); %>
+                                <% if (autorFoto) { %>
+                                    <img src="<%= autorFoto %>" alt="Foto do autor" class="avatar-mini">
+                                <% } else { %>
+                                    <span class="avatar-mini avatar-fallback"><%= (postagem.autorNome || 'U').slice(0, 1) %></span>
+                                <% } %>
+                                <span><%= postagem.autorNome || 'Sem autor' %> (<%= postagem.autorRole || '-' %>)</span>
+                            </td>
                             <td>
                                 <a href="/admin/postagem/edt/<%= postagem._id %>" class="edit">Editar</a>
-                                <a href="/admin/postagem/del/<%= postagem._id %>" class="delete">Excluir</a>
+                                <a href="/admin/postagem/del/<%= postagem._id %>" class="delete" onclick="return confirm('Tem certeza que deseja excluir esta postagem?');">Excluir</a>
                             </td>
                         </tr>
                     <% }); %>
                 <% } else { %>
                     <tr>
-                        <td colspan="5">Nenhuma postagem cadastrada.</td>
+                        <td colspan="6">Nenhuma postagem cadastrada.</td>
                     </tr>
                 <% } %>
             </tbody>

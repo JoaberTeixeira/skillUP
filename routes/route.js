@@ -43,7 +43,7 @@ import {
   login,
   logout,
   perfil, abreedtperfil, edtperfil,
-  abreedtpostagem, edtpostagem, abreaddpostagem, deletapostagem, addpostagem, listarpostagem, filtrarpostagem,
+  abreedtpostagem, edtpostagem, abreaddpostagem, deletapostagem, addpostagem, listarpostagem, filtrarpostagem, likePostagem, commentPostagem,
   abreedtfeed, edtfeed, deletafeed, listarfeed, filtrarfeed, abreaddFeed, addfeed,
 } from '../controllers/controller.js';
 
@@ -71,6 +71,8 @@ router.post('/admin/postagem/lst', requireProfessor, filtrarpostagem);
 router.get('/admin/postagem/del/:id', requireProfessor, deletapostagem);
 router.get('/admin/postagem/edt/:id', requireProfessor, abreedtpostagem);
 router.post('/admin/postagem/edt/:id', requireProfessor, upload.single('midia'), edtpostagem);
+router.post('/admin/postagem/like/:id', likePostagem);
+router.post('/admin/postagem/comment/:id', commentPostagem);
 
 // FEED
 router.get('/admin/feed/add', abreaddFeed);

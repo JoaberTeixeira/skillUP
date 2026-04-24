@@ -7,27 +7,27 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <%- include('../cabecario', { titulo: 'WikiOsasco - Perfil' }) %>
+    <%- include('../cabecario', { titulo: 'SkillUP - Meu Perfil' }) %>
 
     <div class="container">
         <div class="perfil-topo">
             <div class="avatar">
-                <% if (socio.foto) { %>
-                    <img src="<%= socio.foto %>" alt="Foto de perfil">
+                <% if (usuario.foto) { %>
+                    <img src="<%= usuario.foto %>" alt="Foto de perfil">
                 <% } else { %>
-                    <span><%= socio.nome ? socio.nome.slice(0, 1) : 'U' %></span>
+                    <span><%= usuario.nome ? usuario.nome.slice(0, 1) : 'U' %></span>
                 <% } %>
             </div>
             <div>
-                <h1><%= socio.nome %></h1>
-                <p class="perfil-role">Perfil: <strong><%= socio.role %></strong></p>
+                <h1><%= usuario.nome %></h1>
+                <p class="perfil-role">Perfil: <strong><%= usuario.role %></strong></p>
             </div>
         </div>
 
-        <div class="linha"><span class="label">Email:</span> <%= socio.email %></div>
-        <div class="linha"><span class="label">CPF:</span> <%= socio.cpf %></div>
-        <div class="linha"><span class="label">Telefone:</span> <%= socio.telefone || 'Nao informado' %></div>
-        <div class="linha"><span class="label">Bio:</span> <%= socio.bio || 'Sem bio' %></div>
+        <div class="linha"><span class="label">Email:</span> <%= usuario.email %></div>
+        <div class="linha"><span class="label">CPF:</span> <%= usuario.cpf %></div>
+        <div class="linha"><span class="label">Telefone:</span> <%= usuario.telefone || 'Nao informado' %></div>
+        <div class="linha"><span class="label">Bio:</span> <%= usuario.bio || 'Sem bio' %></div>
 
         <div class="acoes">
             <a href="/admin/perfil/edt" class="btn">Editar Meu Perfil</a>

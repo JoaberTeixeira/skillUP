@@ -1,7 +1,9 @@
-import Socio from "../models/socio.js";
+import Usuario from "../models/usuario.js";
 import Postagem from "../models/postagem.js";
 import Feed from "../models/feed.js";
 import { canManagePost } from "../middlewares/auth.js";
+
+const CATEGORIAS_POSTAGEM = ['todas', 'basquete', 'volei', 'futsal', 'futebol', 'handebol', 'tenis', 'futvolei', 'volei de areia', 'padel', 'outros esportes'];
 
 export async function home(req, res) {
     res.render('admin/index');
@@ -16,7 +18,7 @@ export async function loginChoice(req, res) {
 
 export async function setupUsers(req, res) {
     try {
-        await Socio.findOneAndUpdate(
+        await Usuario.findOneAndUpdate(
             { email: 'professor@wiki.com' },
             {
                 nome: 'Prof. Jose',
@@ -28,7 +30,7 @@ export async function setupUsers(req, res) {
             { upsert: true, new: true, setDefaultsOnInsert: true }
         );
 
-        await Socio.findOneAndUpdate(
+        await Usuario.findOneAndUpdate(
             { email: 'aluno@wiki.com' },
             {
                 nome: 'Aluno Maria',
@@ -64,7 +66,7 @@ export async function registerUser(req, res) {
 
         const roleNormalizado = ['aluno', 'professor'].includes(role) ? role : 'aluno';
 
-        const emailExistente = await Socio.findOne({ email });
+        const emailExistente = await Usuario.findOne({ email });
         if (emailExistente) {
             return res.status(400).render('admin/register', {
                 error: 'Ja existe um usuario com este email.',
@@ -73,7 +75,7 @@ export async function registerUser(req, res) {
             });
         }
 
-        const cpfExistente = await Socio.findOne({ cpf });
+        const cpfExistente = await Usuario.findOne({ cpf });
         if (cpfExistente) {
             return res.status(400).render('admin/register', {
                 error: 'Ja existe um usuario com este CPF.',
@@ -82,7 +84,7 @@ export async function registerUser(req, res) {
             });
         }
 
-        await Socio.create({
+        await Usuario.create({
             nome,
             cpf,
             email,
@@ -111,12 +113,12 @@ export async function login(req, res) {
         let user = null;
 
         if (requestedRole) {
-            user = await Socio.findOne({ email, senha, role: requestedRole });
+            user = await Usuario.findOne({ email, senha, role: requestedRole });
         }
 
         // Fallback para base antiga/dados inconsistentes de perfil
         if (!user) {
-            user = await Socio.findOne({ email, senha });
+            user = await Usuario.findOne({ email, senha });
         }
 
         if (!user) {
@@ -130,7 +132,8 @@ export async function login(req, res) {
             id: user._id,
             nome: user.nome,
             email: user.email,
-            role: user.role
+            role: user.role,
+            foto: user.foto || null
         };
 
         return res.redirect('/');
@@ -147,11 +150,11 @@ export async function logout(req, res) {
 
 export async function perfil(req, res) {
     try {
-        const socio = await Socio.findById(req.session.user.id);
-        if (!socio) {
+        const usuario = await Usuario.findById(req.session.user.id);
+        if (!usuario) {
             return res.status(404).send('Perfil nao encontrado');
         }
-        res.render('admin/perfil/index', { socio });
+        res.render('admin/perfil/index', { usuario });
     } catch (err) {
         res.status(500).send('Erro ao carregar perfil: ' + err.message);
     }
@@ -159,11 +162,11 @@ export async function perfil(req, res) {
 
 export async function abreedtperfil(req, res) {
     try {
-        const socio = await Socio.findById(req.session.user.id);
-        if (!socio) {
+        const usuario = await Usuario.findById(req.session.user.id);
+        if (!usuario) {
             return res.status(404).send('Perfil nao encontrado');
         }
-        res.render('admin/perfil/edt', { socio });
+        res.render('admin/perfil/edt', { usuario });
     } catch (err) {
         res.status(500).send('Erro ao carregar edicao de perfil: ' + err.message);
     }
@@ -189,14 +192,15 @@ export async function edtperfil(req, res) {
     }
 
     try {
-        const socio = await Socio.findByIdAndUpdate(req.session.user.id, updateData, { new: true });
-        if (!socio) {
+        const usuario = await Usuario.findByIdAndUpdate(req.session.user.id, updateData, { new: true });
+        if (!usuario) {
             return res.status(404).send('Perfil nao encontrado');
         }
 
-        req.session.user.nome = socio.nome;
-        req.session.user.email = socio.email;
-        req.session.user.role = socio.role;
+        req.session.user.nome = usuario.nome;
+        req.session.user.email = usuario.email;
+        req.session.user.role = usuario.role;
+        req.session.user.foto = usuario.foto || null;
 
         res.redirect('/admin/perfil');
     } catch (err) {
@@ -220,9 +224,11 @@ export async function addpostagem(req, res) {
             titulo: req.body.titulo,
             midia: req.file ? `/uploads/${req.file.filename}` : undefined,
             descricao: req.body.descricao,
+            categoria: req.body.categoria || 'esporte',
             autorId: req.session.user.id,
             autorNome: req.session.user.nome,
-            autorRole: req.session.user.role
+            autorRole: req.session.user.role,
+            autorFoto: req.session.user.foto || undefined
         });
         res.redirect('/admin/postagem/lst');
     } catch (err) {
@@ -232,7 +238,7 @@ export async function addpostagem(req, res) {
 
 export async function listarpostagem(req, res) {
     try {
-        const postagens = await Postagem.find().sort({ _id: -1 });
+        const postagens = await Postagem.find({ autorId: req.session.user.id }).sort({ _id: -1 });
         res.render('admin/postagem/lst', { postagens });
     } catch (erro) {
         res.status(500).send('Erro ao listar postagens: ' + erro.message);
@@ -242,10 +248,69 @@ export async function listarpostagem(req, res) {
 export async function filtrarpostagem(req, res) {
     try {
         const busca = req.body.busca || '';
-        const postagens = await Postagem.find({ titulo: new RegExp(busca, 'i') }).sort({ _id: -1 });
+        const categoria = req.body.categoria || 'todas';
+        const query = {
+            autorId: req.session.user.id,
+            titulo: new RegExp(busca, 'i')
+        };
+        if (categoria !== 'todas') {
+            query.categoria = categoria;
+        }
+        const postagens = await Postagem.find(query).sort({ _id: -1 });
         res.render('admin/postagem/lst', { postagens });
     } catch (err) {
         res.status(500).send('Erro ao filtrar postagens: ' + err.message);
+    }
+}
+
+export async function likePostagem(req, res) {
+    const id = req.params.id;
+    try {
+        const postagem = await Postagem.findById(id);
+        if (!postagem) {
+            return res.status(404).send('Postagem nao encontrada');
+        }
+
+        const userId = req.session.user.id;
+        const alreadyLiked = postagem.curtidas.some((like) => like.toString() === userId);
+        if (alreadyLiked) {
+            postagem.curtidas = postagem.curtidas.filter((like) => like.toString() !== userId);
+        } else {
+            postagem.curtidas.push(userId);
+        }
+
+        await postagem.save();
+        res.redirect(req.get('referer') || '/admin/feed/lst');
+    } catch (err) {
+        res.status(500).send('Erro ao curtir postagem: ' + err.message);
+    }
+}
+
+export async function commentPostagem(req, res) {
+    const id = req.params.id;
+    try {
+        const texto = (req.body.texto || '').trim();
+        if (!texto) {
+            return res.redirect(req.get('referer') || '/admin/feed/lst');
+        }
+
+        const postagem = await Postagem.findById(id);
+        if (!postagem) {
+            return res.status(404).send('Postagem nao encontrada');
+        }
+
+        postagem.comentarios.push({
+            autorId: req.session.user.id,
+            autorNome: req.session.user.nome,
+            autorRole: req.session.user.role,
+            texto,
+            createdAt: new Date()
+        });
+
+        await postagem.save();
+        res.redirect(req.get('referer') || '/admin/feed/lst');
+    } catch (err) {
+        res.status(500).send('Erro ao comentar postagem: ' + err.message);
     }
 }
 
@@ -302,7 +367,8 @@ export async function edtpostagem(req, res) {
 
         const updateData = {
             titulo: req.body.titulo,
-            descricao: req.body.descricao
+            descricao: req.body.descricao,
+            categoria: req.body.categoria || postagem.categoria || 'esporte'
         };
 
         if (req.file) {
@@ -316,15 +382,15 @@ export async function edtpostagem(req, res) {
     }
 }
 
-// --------SOCIO--------
+// --------USUARIO--------
 
-export async function abreaddsocio(req, res) {
-    res.render('admin/socio/add');
+export async function abreaddusuario(req, res) {
+    res.render('admin/usuario/add');
 }
 
-export async function addsocio(req, res) {
+export async function addusuario(req, res) {
     try {
-        await Socio.create({
+        await Usuario.create({
             nome: req.body.nome,
             cpf: req.body.cpf,
             email: req.body.email,
@@ -334,55 +400,55 @@ export async function addsocio(req, res) {
             bio: req.body.bio,
             telefone: req.body.telefone
         });
-        res.redirect('/admin/socio/lst');
+        res.redirect('/admin/usuario/lst');
     } catch (err) {
-        res.status(500).send('Erro ao cadastrar socio: ' + err.message);
+        res.status(500).send('Erro ao cadastrar usuario: ' + err.message);
     }
 }
 
-export async function listarsocio(req, res) {
+export async function listarusuario(req, res) {
     try {
-        const socios = await Socio.find();
-        res.render('admin/socio/lst', { socios });
+        const usuarios = await Usuario.find();
+        res.render('admin/usuario/lst', { usuarios });
     } catch (erro) {
-        res.status(500).send('Erro ao listar socios: ' + erro.message);
+        res.status(500).send('Erro ao listar usuarios: ' + erro.message);
     }
 }
 
-export async function filtrarsocio(req, res) {
+export async function filtrarusuario(req, res) {
     try {
         const busca = req.body.busca || '';
-        const socios = await Socio.find({ nome: new RegExp(busca, 'i') });
-        res.render('admin/socio/lst', { socios });
+        const usuarios = await Usuario.find({ nome: new RegExp(busca, 'i') });
+        res.render('admin/usuario/lst', { usuarios });
     } catch (erro) {
-        res.status(500).send('Erro ao filtrar socios: ' + erro.message);
+        res.status(500).send('Erro ao filtrar usuarios: ' + erro.message);
     }
 }
 
-export async function deletasocio(req, res) {
+export async function deletausuario(req, res) {
     const id = req.params.id;
     try {
-        await Socio.findByIdAndDelete(id);
-        res.redirect('/admin/socio/lst');
+        await Usuario.findByIdAndDelete(id);
+        res.redirect('/admin/usuario/lst');
     } catch (err) {
-        res.status(500).send('Erro ao deletar socio: ' + err.message);
+        res.status(500).send('Erro ao deletar usuario: ' + err.message);
     }
 }
 
-export async function abreedtsocio(req, res) {
+export async function abreedtusuario(req, res) {
     const id = req.params.id;
     try {
-        const socio = await Socio.findById(id);
-        if (!socio) {
-            return res.status(404).send('Socio nao encontrado');
+        const usuario = await Usuario.findById(id);
+        if (!usuario) {
+            return res.status(404).send('Usuario nao encontrado');
         }
-        res.render('admin/socio/edt', { socio });
+        res.render('admin/usuario/edt', { usuario });
     } catch (error) {
-        res.status(500).send('Erro ao buscar socio: ' + error.message);
+        res.status(500).send('Erro ao buscar usuario: ' + error.message);
     }
 }
 
-export async function edtsocio(req, res) {
+export async function edtusuario(req, res) {
     const id = req.params.id;
     const updateData = {
         nome: req.body.nome,
@@ -399,10 +465,10 @@ export async function edtsocio(req, res) {
     }
 
     try {
-        await Socio.findByIdAndUpdate(id, updateData);
-        res.redirect('/admin/socio/lst');
+        await Usuario.findByIdAndUpdate(id, updateData);
+        res.redirect('/admin/usuario/lst');
     } catch (err) {
-        res.status(500).send('Erro ao editar socio: ' + err.message);
+        res.status(500).send('Erro ao editar usuario: ' + err.message);
     }
 }
 
@@ -429,8 +495,10 @@ export async function addfeed(req, res) {
 export async function listarfeed(req, res) {
     try {
         const feeds = await Feed.find();
-        const postagens = await Postagem.find().sort({ createdAt: -1, _id: -1 });
-        res.render('admin/feed/lst', { feeds, postagens });
+        const postagens = await Postagem.find()
+            .populate('autorId', 'foto')
+            .sort({ createdAt: -1, _id: -1 });
+        res.render('admin/feed/lst', { feeds, postagens, categorias: CATEGORIAS_POSTAGEM, selectedCategoria: 'todas' });
     } catch (err) {
         res.status(500).send('Erro ao listar feeds: ' + err.message);
     }
@@ -439,9 +507,15 @@ export async function listarfeed(req, res) {
 export async function filtrarfeed(req, res) {
     try {
         const busca = req.body.busca || '';
-        const feeds = await Feed.find({ adversario: new RegExp(busca, 'i') });
-        const postagens = await Postagem.find().sort({ createdAt: -1, _id: -1 });
-        res.render('admin/feed/lst', { feeds, postagens });
+        const selectedCategoria = req.body.categoria || 'todas';
+        const feedQuery = { adversario: new RegExp(busca, 'i') };
+        const postQuery = selectedCategoria === 'todas' ? {} : { categoria: selectedCategoria };
+
+        const feeds = await Feed.find(feedQuery);
+        const postagens = await Postagem.find(postQuery)
+            .populate('autorId', 'foto')
+            .sort({ createdAt: -1, _id: -1 });
+        res.render('admin/feed/lst', { feeds, postagens, categorias: CATEGORIAS_POSTAGEM, selectedCategoria });
     } catch (err) {
         res.status(500).send('Erro ao filtrar feeds: ' + err.message);
     }

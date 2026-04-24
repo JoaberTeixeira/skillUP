@@ -10,7 +10,7 @@
 
 <body>
 
-    <%- include('../cabecario', { titulo: 'WikiOsasco - Sistema Administrativo' }) %>
+    <%- include('../cabecario', { titulo: 'SkillUP - sistema de aprendizagem' }) %>
     <div class="container">
         <h3>Editar Postagem</h3>
 
@@ -35,14 +35,22 @@
             <label for="descricao">Descricao:</label>
             <input type="text" id="descricao" name="descricao" value="<%= postagem.descricao %>" required>
 
+            <label for="categoria">Categoria:</label>
+            <select id="categoria" name="categoria" required>
+                <option value="basquete" <%= postagem.categoria === 'basquete' ? 'selected' : '' %>>Basquete</option>
+                <option value="volei" <%= postagem.categoria === 'volei' ? 'selected' : '' %>>Volei</option>
+                <option value="futsal" <%= postagem.categoria === 'futsal' ? 'selected' : '' %>>Futsal</option>
+                <option value="futebol" <%= postagem.categoria === 'futebol' ? 'selected' : '' %>>Futebol</option>
+                <option value="handebol" <%= postagem.categoria === 'handebol' ? 'selected' : '' %>>Handebol</option>
+                <option value="tenis" <%= postagem.categoria === 'tenis' ? 'selected' : '' %>>Tenis</option>
+                <option value="futvolei" <%= postagem.categoria === 'futvolei' ? 'selected' : '' %>>Futvolei</option>
+                <option value="volei de areia" <%= postagem.categoria === 'volei de areia' ? 'selected' : '' %>>Volei de Areia</option>
+                <option value="padel" <%= postagem.categoria === 'padel' ? 'selected' : '' %>>Padel</option>
+                <option value="outros esportes" <%= postagem.categoria === 'outros esportes' ? 'selected' : '' %>>Outros Esportes</option>
+            </select>
+
             <button type="submit">Salvar</button>
         </form>
-
-        <div class="add-player">
-            <a href="/admin/postagem/add" class="btn">+ Jogador</a>
-        </div>
-
-
 
 </body>
 

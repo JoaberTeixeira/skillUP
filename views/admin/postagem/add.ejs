@@ -10,7 +10,7 @@
 
 <body>
 
-    <%- include('../cabecario', { titulo: 'WikiOsasco - Sistema Administrativo' }) %>
+    <%- include('../cabecario', { titulo: 'SkillUP - sistema de aprendizagem' }) %>
 
     <div class="form-container">
         <form action="" method="post" enctype="multipart/form-data">
@@ -25,6 +25,20 @@
 
             <label for="descricao">Descricao:</label>
             <input type="text" id="descricao" name="descricao" required>
+
+            <label for="categoria">Categoria:</label>
+            <select id="categoria" name="categoria" required>
+                <option value="basquete" selected>Basquete</option>
+                <option value="volei">Volei</option>
+                <option value="futsal">Futsal</option>
+                <option value="futebol">Futebol</option>
+                <option value="handebol">Handebol</option>
+                <option value="tenis">Tenis</option>
+                <option value="futvolei">Futvolei</option>
+                <option value="volei de areia">Volei de Areia</option>
+                <option value="padel">Padel</option>
+                <option value="outros esportes">Outros Esportes</option>
+            </select>
 
             <button type="submit">Enviar</button>
         </form>
