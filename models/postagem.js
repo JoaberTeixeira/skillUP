@@ -3,7 +3,7 @@ import conexao from "../config/conexao.js"
 const Postagem = conexao.Schema(
     {
             titulo: { type: String, required: true },
-            midia: { type: String, required: true },
+            midia: [{ type: String }],
             descricao: { type: String, required: true },
             categoria: { type: String, required: true, enum: ['basquete', 'volei', 'futsal', 'futebol', 'handebol', 'tenis', 'futvolei', 'volei de areia', 'padel', 'outros esportes'], default: 'basquete' },
             autorId: { type: conexao.Schema.Types.ObjectId, ref: 'Usuario', required: true },
@@ -16,7 +16,14 @@ const Postagem = conexao.Schema(
                 autorNome: { type: String, required: true },
                 autorRole: { type: String, required: true, enum: ['professor', 'aluno'] },
                 texto: { type: String, required: true },
-                createdAt: { type: Date, default: Date.now }
+                createdAt: { type: Date, default: Date.now },
+                respostas: [{
+                    autorId: { type: conexao.Schema.Types.ObjectId, ref: 'Usuario', required: true },
+                    autorNome: { type: String, required: true },
+                    autorRole: { type: String, required: true, enum: ['professor', 'aluno'] },
+                    texto: { type: String, required: true },
+                    createdAt: { type: Date, default: Date.now }
+                }]
             }]
     },
     { timestamps: true })

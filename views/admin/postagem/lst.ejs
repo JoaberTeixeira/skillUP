@@ -39,16 +39,25 @@
                             <td><%= postagem.titulo %></td>
                             <td><%= postagem.categoria ? postagem.categoria.charAt(0).toUpperCase() + postagem.categoria.slice(1) : 'N/A' %></td>
                             <td>
-                                <% if (postagem.midia) { %>
-                                    <% const isVideo = /\.(mp4|webm|ogg)$/i.test(postagem.midia); %>
-                                    <% if (isVideo) { %>
-                                        <video controls preload="metadata" class="media-thumb">
-                                            <source src="<%= postagem.midia %>" type="<%= getVideoMimeType(postagem.midia) %>">
-                                            Seu navegador nao suporta este video.
-                                        </video>
-                                    <% } else { %>
-                                        <img src="<%= postagem.midia %>" alt="Midia" class="media-thumb">
-                                    <% } %>
+                                <% const medias = Array.isArray(postagem.midia) ? postagem.midia : (postagem.midia ? [postagem.midia] : []); %>
+                                <% if (medias.length) { %>
+                                    <div class="media-container">
+                                        <% medias.forEach(function(src) { %>
+                                            <% const isVideo = /\.(mp4|webm|ogg)$/i.test(src); %>
+                                            <% if (isVideo) { %>
+                                                <video controls preload="metadata" class="media-item">
+                                                    <source src="<%= src %>" type="<%= getVideoMimeType(src) %>">
+                                                    Seu navegador nao suporta este video.
+                                                </video>
+                                            <% } else { %>
+                                                <a href="<%= src %>" target="_blank" rel="noopener noreferrer" class="media-link">
+                                                    <img src="<%= src %>" alt="Midia" class="media-thumb">
+                                                </a>
+                                            <% } %>
+                                        <% }) %>
+                                    </div>
+                                <% } else { %>
+                                    <span>Sem mídia</span>
                                 <% } %>
                             </td>
                             <td><%= postagem.descricao %></td>

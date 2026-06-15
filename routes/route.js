@@ -44,12 +44,12 @@ import {
   logout,
   perfil, abreedtperfil, edtperfil,
   abreedtpostagem, edtpostagem, abreaddpostagem, deletapostagem, addpostagem, listarpostagem, filtrarpostagem, likePostagem, commentPostagem,
+  editCommentPostagem, deleteCommentPostagem, replyCommentPostagem, editReplyCommentPostagem, deleteReplyCommentPostagem,
   abreedtfeed, edtfeed, deletafeed, listarfeed, filtrarfeed, abreaddFeed, addfeed,
 } from '../controllers/controller.js';
 
 // PUBLICAS
-router.get('/login', loginChoice);
-router.get('/login/:role', showLoginForm);
+router.get('/login', showLoginForm);
 router.get('/register', showRegisterForm);
 router.post('/register', registerUser);
 router.post('/login', login);
@@ -65,14 +65,19 @@ router.post('/admin/perfil/edt', upload.single('foto'), edtperfil);
 
 // POSTAGEM
 router.get('/admin/postagem/add', requireProfessor, abreaddpostagem);
-router.post('/admin/postagem/add', requireProfessor, upload.single('midia'), addpostagem);
+router.post('/admin/postagem/add', requireProfessor, upload.array('midia', 10), addpostagem);
 router.get('/admin/postagem/lst', requireProfessor, listarpostagem);
 router.post('/admin/postagem/lst', requireProfessor, filtrarpostagem);
 router.get('/admin/postagem/del/:id', requireProfessor, deletapostagem);
 router.get('/admin/postagem/edt/:id', requireProfessor, abreedtpostagem);
-router.post('/admin/postagem/edt/:id', requireProfessor, upload.single('midia'), edtpostagem);
+router.post('/admin/postagem/edt/:id', requireProfessor, upload.array('midia', 10), edtpostagem);
 router.post('/admin/postagem/like/:id', likePostagem);
 router.post('/admin/postagem/comment/:id', commentPostagem);
+router.post('/admin/postagem/comment/edt/:id/:commentId', editCommentPostagem);
+router.post('/admin/postagem/comment/del/:id/:commentId', deleteCommentPostagem);
+router.post('/admin/postagem/comment/reply/:id/:commentId', replyCommentPostagem);
+router.post('/admin/postagem/comment/reply/edt/:id/:commentId/:replyId', editReplyCommentPostagem);
+router.post('/admin/postagem/comment/reply/del/:id/:commentId/:replyId', deleteReplyCommentPostagem);
 
 // FEED
 router.get('/admin/feed/add', abreaddFeed);

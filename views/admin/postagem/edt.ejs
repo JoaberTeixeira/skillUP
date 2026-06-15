@@ -21,16 +21,24 @@
             <label for="titulo">Titulo:</label>
             <input type="text" id="titulo" name="titulo" value="<%= postagem.titulo %>" required>
 
-            <label for="midia">Midia (imagem ou video):</label>
-            <% if (postagem.midia) { %>
-                <% const isVideo = /\.(mp4|webm|ogg)$/i.test(postagem.midia); %>
-                <% if (isVideo) { %>
-                    <video src="<%= postagem.midia %>" controls class="media-preview"></video>
-                <% } else { %>
-                    <img src="<%= postagem.midia %>" alt="Midia atual" class="media-preview">
-                <% } %>
+            <label for="midia">Mídia (imagem ou vídeo):</label>
+            <% const midiasAtuais = Array.isArray(postagem.midia) ? postagem.midia : (postagem.midia ? [postagem.midia] : []); %>
+            <% if (midiasAtuais.length) { %>
+                <% midiasAtuais.forEach(function(src) { %>
+                    <% const isVideo = /\.(mp4|webm|ogg)$/i.test(src); %>
+                    <% if (isVideo) { %>
+                        <video src="<%= src %>" controls class="media-preview"></video>
+                    <% } else { %>
+                        <a href="<%= src %>" target="_blank" rel="noopener noreferrer">
+                            <img src="<%= src %>" alt="Midia atual" class="media-preview">
+                        </a>
+                    <% } %>
+                <% }) %>
+            <% } else { %>
+                <p>Sem mídia atualmente.</p>
             <% } %>
-            <input type="file" id="midia" name="midia" accept="image/*,video/*">
+            <input type="file" id="midia" name="midia" accept="image/*,video/*" multiple>
+            <p class="hint">Adicione novos arquivos para anexar à postagem.</p>
 
             <label for="descricao">Descricao:</label>
             <input type="text" id="descricao" name="descricao" value="<%= postagem.descricao %>" required>

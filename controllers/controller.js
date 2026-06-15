@@ -13,7 +13,7 @@ export async function loginChoice(req, res) {
     if (req.session?.user) {
         return res.redirect('/');
     }
-    res.render('admin/login_choice');
+    res.redirect('/login');
 }
 
 export async function setupUsers(req, res) {
@@ -49,11 +49,10 @@ export async function setupUsers(req, res) {
 }
 
 export async function showLoginForm(req, res) {
-    const role = req.params.role;
-    if (!['professor', 'aluno'].includes(role)) {
-        return res.status(404).send('Rota de login invalida');
+    if (req.session?.user) {
+        return res.redirect('/');
     }
-    res.render('admin/login', { role, error: null });
+    res.render('admin/login', { error: null });
 }
 
 export async function showRegisterForm(req, res) {
@@ -220,9 +219,13 @@ export async function addpostagem(req, res) {
             return res.status(403).send('Apenas professores podem criar postagens.');
         }
 
+        const midias = (req.files && req.files.length)
+            ? req.files.map((file) => `/uploads/${file.filename}`)
+            : [];
+
         await Postagem.create({
             titulo: req.body.titulo,
-            midia: req.file ? `/uploads/${req.file.filename}` : undefined,
+            midia: midias,
             descricao: req.body.descricao,
             categoria: req.body.categoria || 'esporte',
             autorId: req.session.user.id,
@@ -314,6 +317,180 @@ export async function commentPostagem(req, res) {
     }
 }
 
+export async function editCommentPostagem(req, res) {
+    const id = req.params.id;
+    const commentId = req.params.commentId;
+    try {
+        const texto = (req.body.texto || '').trim();
+        if (!texto) {
+            return res.redirect(req.get('referer') || '/admin/feed/lst');
+        }
+
+        const postagem = await Postagem.findById(id);
+        if (!postagem) {
+            return res.status(404).send('Postagem nao encontrada');
+        }
+
+        const comentario = postagem.comentarios.id(commentId);
+        if (!comentario) {
+            return res.status(404).send('Comentario nao encontrado');
+        }
+
+        if (String(comentario.autorId) !== String(req.session.user.id)) {
+            return res.status(403).send('Sem permissao para editar este comentario');
+        }
+
+        comentario.texto = texto;
+        await postagem.save();
+        res.redirect(req.get('referer') || '/admin/feed/lst');
+    } catch (err) {
+        res.status(500).send('Erro ao editar comentario: ' + err.message);
+    }
+}
+
+export async function deleteCommentPostagem(req, res) {
+    const id = req.params.id;
+    const commentId = req.params.commentId;
+    try {
+        const postagem = await Postagem.findById(id);
+        if (!postagem) {
+            return res.status(404).send('Postagem nao encontrada');
+        }
+
+        const comentario = postagem.comentarios.id(commentId);
+        if (!comentario) {
+            return res.status(404).send('Comentario nao encontrado');
+        }
+
+        if (String(comentario.autorId) !== String(req.session.user.id)) {
+            return res.status(403).send('Sem permissao para excluir este comentario');
+        }
+
+        const commentIndex = postagem.comentarios.findIndex((c) => String(c._id) === String(commentId));
+        if (commentIndex === -1) {
+            return res.status(404).send('Comentario nao encontrado');
+        }
+
+        postagem.comentarios.splice(commentIndex, 1);
+        await postagem.save();
+        res.redirect(req.get('referer') || '/admin/feed/lst');
+    } catch (err) {
+        res.status(500).send('Erro ao excluir comentario: ' + err.message);
+    }
+}
+
+export async function replyCommentPostagem(req, res) {
+    const id = req.params.id;
+    const commentId = req.params.commentId;
+    try {
+        const texto = (req.body.texto || '').trim();
+        if (!texto) {
+            return res.redirect(req.get('referer') || '/admin/feed/lst');
+        }
+
+        const postagem = await Postagem.findById(id);
+        if (!postagem) {
+            return res.status(404).send('Postagem nao encontrada');
+        }
+
+        const comentario = postagem.comentarios.id(commentId);
+        if (!comentario) {
+            return res.status(404).send('Comentario nao encontrado');
+        }
+
+        if (!comentario.respostas) {
+            comentario.respostas = [];
+        }
+
+        comentario.respostas.push({
+            autorId: req.session.user.id,
+            autorNome: req.session.user.nome,
+            autorRole: req.session.user.role,
+            texto,
+            createdAt: new Date()
+        });
+
+        await postagem.save();
+        res.redirect(req.get('referer') || '/admin/feed/lst');
+    } catch (err) {
+        res.status(500).send('Erro ao responder comentario: ' + err.message);
+    }
+}
+
+export async function editReplyCommentPostagem(req, res) {
+    const id = req.params.id;
+    const commentId = req.params.commentId;
+    const replyId = req.params.replyId;
+    try {
+        const texto = (req.body.texto || '').trim();
+        if (!texto) {
+            return res.redirect(req.get('referer') || '/admin/feed/lst');
+        }
+
+        const postagem = await Postagem.findById(id);
+        if (!postagem) {
+            return res.status(404).send('Postagem nao encontrada');
+        }
+
+        const comentario = postagem.comentarios.id(commentId);
+        if (!comentario) {
+            return res.status(404).send('Comentario nao encontrado');
+        }
+
+        const resposta = comentario.respostas.id(replyId);
+        if (!resposta) {
+            return res.status(404).send('Resposta nao encontrada');
+        }
+
+        if (String(resposta.autorId) !== String(req.session.user.id)) {
+            return res.status(403).send('Sem permissao para editar esta resposta');
+        }
+
+        resposta.texto = texto;
+        await postagem.save();
+        res.redirect(req.get('referer') || '/admin/feed/lst');
+    } catch (err) {
+        res.status(500).send('Erro ao editar resposta: ' + err.message);
+    }
+}
+
+export async function deleteReplyCommentPostagem(req, res) {
+    const id = req.params.id;
+    const commentId = req.params.commentId;
+    const replyId = req.params.replyId;
+    try {
+        const postagem = await Postagem.findById(id);
+        if (!postagem) {
+            return res.status(404).send('Postagem nao encontrada');
+        }
+
+        const comentario = postagem.comentarios.id(commentId);
+        if (!comentario) {
+            return res.status(404).send('Comentario nao encontrado');
+        }
+
+        const resposta = comentario.respostas.id(replyId);
+        if (!resposta) {
+            return res.status(404).send('Resposta nao encontrada');
+        }
+
+        if (String(resposta.autorId) !== String(req.session.user.id)) {
+            return res.status(403).send('Sem permissao para excluir esta resposta');
+        }
+
+        const replyIndex = comentario.respostas.findIndex((r) => String(r._id) === String(replyId));
+        if (replyIndex === -1) {
+            return res.status(404).send('Resposta nao encontrada');
+        }
+
+        comentario.respostas.splice(replyIndex, 1);
+        await postagem.save();
+        res.redirect(req.get('referer') || '/admin/feed/lst');
+    } catch (err) {
+        res.status(500).send('Erro ao excluir resposta: ' + err.message);
+    }
+}
+
 export async function deletapostagem(req, res) {
     const id = req.params.id;
     try {
@@ -371,8 +548,11 @@ export async function edtpostagem(req, res) {
             categoria: req.body.categoria || postagem.categoria || 'esporte'
         };
 
-        if (req.file) {
-            updateData.midia = `/uploads/${req.file.filename}`;
+        if (req.files && req.files.length) {
+            const novasMidias = req.files.map((file) => `/uploads/${file.filename}`);
+            updateData.midia = Array.isArray(postagem.midia)
+                ? postagem.midia.concat(novasMidias)
+                : (postagem.midia ? [postagem.midia] : []).concat(novasMidias);
         }
 
         await Postagem.findByIdAndUpdate(id, updateData);

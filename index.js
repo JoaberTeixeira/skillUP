@@ -36,14 +36,23 @@ app.set('view engine', 'ejs');
 import routes from "./routes/route.js"
 app.use(routes)
 
-const PORT = process.env.PORT || 3000;
+const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
 
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-}).on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-        console.error(`Porta ${PORT} já está em uso. Pare o processo que estiver usando ou escolha outra porta.`);
-    } else {
-        console.error('Erro ao iniciar o servidor:', err);
-    }
-});
+function startServer(port) {
+    const server = app.listen(port, () => {
+        console.log(`Servidor rodando na porta ${port}`);
+    });
+
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            const nextPort = port + 1;
+            console.warn(`Porta ${port} ocupada. Tentando porta ${nextPort}...`);
+            startServer(nextPort);
+        } else {
+            console.error('Erro ao iniciar o servidor:', err);
+            process.exit(1);
+        }
+    });
+}
+
+startServer(DEFAULT_PORT);

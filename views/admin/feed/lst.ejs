@@ -62,17 +62,22 @@
                             <div class="post-body">
                                 <h3><%= postagem.titulo %></h3>
                                 <p><%= postagem.descricao %></p>
-                                <% if (postagem.midia) { %>
+                                <% const medias = Array.isArray(postagem.midia) ? postagem.midia : (postagem.midia ? [postagem.midia] : []); %>
+                                <% if (medias.length) { %>
                                     <div class="post-media">
-                                        <% const isVideo = /\.(mp4|webm|ogg)$/i.test(postagem.midia); %>
-                                        <% if (isVideo) { %>
-                                            <video controls preload="metadata">
-                                                <source src="<%= postagem.midia %>" type="<%= getVideoMimeType(postagem.midia) %>">
-                                                Seu navegador nao suporta este video.
-                                            </video>
-                                        <% } else { %>
-                                            <img src="<%= postagem.midia %>" alt="Midia da postagem">
-                                        <% } %>
+                                        <% medias.forEach(function(src) { %>
+                                            <% const isVideo = /\.(mp4|webm|ogg)$/i.test(src); %>
+                                            <% if (isVideo) { %>
+                                                <video controls preload="metadata">
+                                                    <source src="<%= src %>" type="<%= getVideoMimeType(src) %>">
+                                                    Seu navegador nao suporta este video.
+                                                </video>
+                                            <% } else { %>
+                                                <a href="<%= src %>" target="_blank" rel="noopener noreferrer">
+                                                    <img src="<%= src %>" alt="Midia da postagem">
+                                                </a>
+                                            <% } %>
+                                        <% }) %>
                                     </div>
                                 <% } %>
                                 <div class="post-actions">
@@ -87,7 +92,55 @@
                                         <% postagem.comentarios.slice(-3).reverse().forEach(function(comment) { %>
                                             <div class="comment-item">
                                                 <strong><%= comment.autorNome %></strong> <span class="comment-meta">(<%= comment.autorRole %>)</span>
-                                                <p><%= comment.texto %></p>
+                                                <p class="comment-text-display-<%= comment._id %>"><%= comment.texto %></p>
+                                                <div class="comment-actions">
+                                                    <button type="button" class="btn-action btn-reply" onclick="toggleReplyForm('<%= postagem._id %>', '<%= comment._id %>')">Responder</button>
+                                                    <% if (user && String(comment.autorId) === String(user.id)) { %>
+                                                        <button type="button" class="btn-action" onclick="toggleEditComment('<%= comment._id %>', '<%= postagem._id %>')">Editar</button>
+                                                        <a href="/admin/postagem/comment/del/<%= postagem._id %>/<%= comment._id %>" class="btn-action btn-danger" onclick="return confirm('Tem certeza que deseja excluir este comentário?');">Excluir</a>
+                                                    <% } %>
+                                                </div>
+                                                <form action="/admin/postagem/comment/edt/<%= postagem._id %>/<%= comment._id %>" method="post" class="comment-edit-form-<%= comment._id %>" style="display:none;">
+                                                    <textarea name="texto" required><%= comment.texto %></textarea>
+                                                    <div class="comment-edit-buttons">
+                                                        <button type="submit" class="btn-action">Salvar</button>
+                                                        <button type="button" class="btn-action" onclick="toggleEditComment('<%= comment._id %>', '<%= postagem._id %>')">Cancelar</button>
+                                                    </div>
+                                                </form>
+
+                                                <!-- Respostas -->
+                                                <% if (comment.respostas && comment.respostas.length) { %>
+                                                    <div class="replies-list">
+                                                        <% comment.respostas.forEach(function(reply) { %>
+                                                            <div class="reply-item">
+                                                                <strong><%= reply.autorNome %></strong> <span class="comment-meta">(<%= reply.autorRole %>)</span>
+                                                                <p class="reply-text-display-<%= reply._id %>"><%= reply.texto %></p>
+                                                                <% if (user && String(reply.autorId) === String(user.id)) { %>
+                                                                    <div class="reply-actions">
+                                                                        <button type="button" class="btn-action" onclick="toggleEditReply('<%= reply._id %>')">Editar</button>
+                                                                        <a href="/admin/postagem/comment/reply/del/<%= postagem._id %>/<%= comment._id %>/<%= reply._id %>" class="btn-action btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta resposta?');">Excluir</a>
+                                                                    </div>
+                                                                    <form action="/admin/postagem/comment/reply/edt/<%= postagem._id %>/<%= comment._id %>/<%= reply._id %>" method="post" class="reply-edit-form-<%= reply._id %>" style="display:none;">
+                                                                        <textarea name="texto" required><%= reply.texto %></textarea>
+                                                                        <div class="reply-edit-buttons">
+                                                                            <button type="submit" class="btn-action">Salvar</button>
+                                                                            <button type="button" class="btn-action" onclick="toggleEditReply('<%= reply._id %>')">Cancelar</button>
+                                                                        </div>
+                                                                    </form>
+                                                                <% } %>
+                                                            </div>
+                                                        <% }) %>
+                                                    </div>
+                                                <% } %>
+
+                                                <!-- Formulário de resposta -->
+                                                <form action="/admin/postagem/comment/reply/<%= postagem._id %>/<%= comment._id %>" method="post" class="reply-form-<%= comment._id %>" style="display:none;">
+                                                    <textarea name="texto" placeholder="Adicione uma resposta..." required></textarea>
+                                                    <div class="reply-form-buttons">
+                                                        <button type="submit" class="btn-action">Enviar resposta</button>
+                                                        <button type="button" class="btn-action" onclick="toggleReplyForm('<%= postagem._id %>', '<%= comment._id %>')">Cancelar</button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         <% }) %>
                                     <% } %>
@@ -104,6 +157,44 @@
         <% } %>
 
     </div>
+
+    <script>
+        function toggleEditComment(commentId, postagemId) {
+            const textDisplay = document.querySelector(`.comment-text-display-${commentId}`);
+            const editForm = document.querySelector(`.comment-edit-form-${commentId}`);
+            
+            if (editForm.style.display === 'none') {
+                editForm.style.display = 'block';
+                textDisplay.style.display = 'none';
+            } else {
+                editForm.style.display = 'none';
+                textDisplay.style.display = 'block';
+            }
+        }
+
+        function toggleReplyForm(postagemId, commentId) {
+            const replyForm = document.querySelector(`.reply-form-${commentId}`);
+            
+            if (replyForm.style.display === 'none') {
+                replyForm.style.display = 'block';
+            } else {
+                replyForm.style.display = 'none';
+            }
+        }
+
+        function toggleEditReply(replyId) {
+            const textDisplay = document.querySelector(`.reply-text-display-${replyId}`);
+            const editForm = document.querySelector(`.reply-edit-form-${replyId}`);
+            
+            if (editForm.style.display === 'none') {
+                editForm.style.display = 'block';
+                textDisplay.style.display = 'none';
+            } else {
+                editForm.style.display = 'none';
+                textDisplay.style.display = 'block';
+            }
+        }
+    </script>
 
 </body>
 
