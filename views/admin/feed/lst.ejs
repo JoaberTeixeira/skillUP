@@ -4,31 +4,736 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Feeds</title>
+    <title>Feed - SkillUP</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .feed-container {
+            max-width: 1000px;
+            margin: 100px auto 40px;
+        }
+
+        .feed-header {
+            background: linear-gradient(135deg, #09316e 0%, #92C8E9 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .feed-header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .feed-header p {
+            font-size: 16px;
+            opacity: 0.95;
+            margin: 0;
+        }
+
+        .feed-filter-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .feed-filter-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .search-input-group {
+            position: relative;
+        }
+
+        .search-input-group input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input-group input:hover,
+        .search-input-group input:focus {
+            border-color: #92C8E9;
+            outline: none;
+        }
+
+        .search-input-group::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        .search-results-info {
+            grid-column: 1 / -1;
+            background: #f0f8ff;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #92C8E9;
+            font-size: 13px;
+            color: #09316e;
+            display: none;
+        }
+
+        .search-results-info.active {
+            display: block;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            color: #09316e;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .filter-group select {
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            background: white;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .filter-group select:hover,
+        .filter-group select:focus {
+            border-color: #92C8E9;
+            outline: none;
+        }
+
+        .feed-filter-form button {
+            background: #09316e !important;
+            color: white !important;
+            padding: 10px 24px !important;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: fit-content;
+        }
+
+        .feed-filter-form button:hover {
+            background: #0a4199 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(9, 49, 110, 0.3);
+        }
+
+        .feed-content {
+            margin-top: 40px;
+        }
+
+        .feed-title {
+            font-size: 24px;
+            color: #09316e;
+            margin-bottom: 25px;
+            font-weight: bold;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #92C8E9;
+        }
+
+        .feed-scroll {
+            display: grid;
+            gap: 20px;
+            max-height: none;
+            overflow-y: visible;
+            padding-right: 0;
+        }
+
+        .social-post {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            border: 1px solid #f0f0f0;
+        }
+
+        .social-post:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .post-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f4f8 100%);
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #09316e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(9, 49, 110, 0.2);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .post-header > div:last-child {
+            flex: 1;
+        }
+
+        .post-user {
+            font-weight: bold;
+            color: #09316e;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .post-body {
+            padding: 25px;
+        }
+
+        .post-body h3 {
+            font-size: 20px;
+            color: #09316e;
+            margin: 0 0 12px 0;
+            font-weight: bold;
+        }
+
+        .post-body p {
+            color: #333;
+            line-height: 1.6;
+            margin: 0 0 15px 0;
+            font-size: 15px;
+        }
+
+        .post-media {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .post-media img,
+        .post-media video {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #000;
+        }
+
+        .post-media a {
+            display: block;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-action {
+            background: #09316e !important;
+            color: white !important;
+            padding: 8px 16px !important;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background: #0a4199 !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-reply {
+            background: #92C8E9 !important;
+            color: white !important;
+        }
+
+        .btn-reply:hover {
+            background: #7ab8d9 !important;
+        }
+
+        .btn-danger {
+            background: #e74c3c !important;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b !important;
+        }
+
+        .comment-count {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .comments-list {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .comment-item {
+            background: #f8f9fa;
+            border-left: 4px solid #92C8E9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .comment-item strong {
+            color: #09316e;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .comment-meta {
+            color: #999;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .comment-text-display-<%= Object.keys(postagens ? postagens[0]?.comentarios?.[0] || {} : {}).join(', ') || '' %> {
+            color: #333;
+            line-height: 1.5;
+            margin: 8px 0;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .replies-list {
+            margin: 15px 0 15px 20px;
+            padding-left: 15px;
+            border-left: 3px solid #9AF995;
+        }
+
+        .reply-item {
+            background: #f0fdf4;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid #9AF995;
+        }
+
+        .reply-item strong {
+            color: #09316e;
+            font-size: 13px;
+        }
+
+        .reply-item p {
+            margin: 6px 0 0 0;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .reply-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .reply-actions .btn-action {
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+        }
+
+        .comment-form,
+        .reply-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px dashed #92C8E9;
+        }
+
+        .comment-form textarea,
+        .reply-form textarea,
+        .comment-edit-form textarea,
+        .reply-edit-form textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .comment-form textarea:focus,
+        .reply-form textarea:focus {
+            outline: none;
+            border-color: #92C8E9;
+            box-shadow: 0 0 5px rgba(146, 200, 233, 0.3);
+        }
+
+        .comment-edit-form,
+        .reply-edit-form {
+            display: none;
+            margin-top: 10px;
+            padding: 12px;
+            background: #fff9e6;
+            border-left: 4px solid #FFD700;
+            border-radius: 6px;
+        }
+
+        .comment-edit-buttons,
+        .reply-edit-buttons,
+        .reply-form-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .comment-edit-buttons .btn-action,
+        .reply-edit-buttons .btn-action,
+        .reply-form-buttons .btn-action,
+        .comment-form button {
+            flex: 1;
+            margin: 0;
+        }
+
+        .no-posts {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            color: #666;
+        }
+
+        .no-posts h2 {
+            color: #09316e;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .no-posts p {
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .feed-header {
+                padding: 25px;
+                margin: 100px 12px 20px;
+                border-radius: 12px;
+            }
+
+            .feed-header h1 {
+                font-size: 26px;
+            }
+
+            .feed-filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .search-results-info {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            .search-results-info a {
+                display: block;
+                margin-top: 8px;
+                margin-left: 0;
+            }
+
+            .post-header {
+                padding: 15px;
+            }
+
+            .post-body {
+                padding: 15px;
+            }
+
+            .post-media {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-    <%- include('../cabecario', { titulo: 'SkillUP - sistema de aprendizagem' }) %>
+    <%- include('../cabecario', { titulo: 'SkillUP - Feed' }) %>
 
-    <div class="content">
-        <h1>Feed</h1>
+    <div class="feed-container">
+        <!-- Feed Header -->
+        <div class="feed-header">
+            <h1>📺 Feed de Aulas & Conteúdo</h1>
+            <p>Explore as melhores aulas e compartilhamentos da comunidade SkillUP</p>
+        </div>
 
-        <form action="/admin/feed/lst" method="post" class="feed-filter-form">
-            <label for="categoria">Filtrar por categoria:</label>
-            <select id="categoria" name="categoria">
-                <% if (categorias && categorias.length) { %>
-                    <% categorias.forEach(function(cat) { %>
-                        <option value="<%= cat %>" <%= selectedCategoria === cat ? 'selected' : '' %>><%= cat === 'todas' ? 'Todas' : cat.charAt(0).toUpperCase() + cat.slice(1) %></option>
-                    <% }); %>
-                <% } else { %>
-                    <option value="todas" selected>Todas</option>
-                    <option value="esporte">Esporte</option>
+        <!-- Filter Section -->
+        <div class="feed-filter-section">
+            <form action="/admin/feed/lst" method="post" class="feed-filter-form">
+                <div class="search-input-group">
+                    <label for="busca" style="display: block; color: #09316e; font-weight: bold; margin-bottom: 8px; font-size: 14px; text-transform: uppercase;">🔍 Pesquisar Aulas</label>
+                    <input type="text" id="busca" name="busca" placeholder="Digite o nome da aula ou professor..." value="<%= buscaTermo || '' %>">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="categoria">Filtrar por Categoria</label>
+                    <select id="categoria" name="categoria">
+                        <% if (categorias && categorias.length) { %>
+                            <% categorias.forEach(function(cat) { %>
+                                <option value="<%= cat %>" <%= selectedCategoria === cat ? 'selected' : '' %>>
+                                    <%= cat === 'todas' ? '✨ Todas as Categorias' : cat.charAt(0).toUpperCase() + cat.slice(1) %>
+                                </option>
+                            <% }); %>
+                        <% } else { %>
+                            <option value="todas" selected>✨ Todas as Categorias</option>
+                            <option value="basquete">🏀 Basquete</option>
+                            <option value="volei">🏐 Vôlei</option>
+                            <option value="futsal">⚽ Futsal</option>
+                            <option value="futebol">⚽ Futebol</option>
+                            <option value="handebol">🤾 Handebol</option>
+                            <option value="tenis">🎾 Tênis</option>
+                            <option value="futvolei">🏐 Futevôlei</option>
+                            <option value="volei de areia">🏖️ Vôlei de Areia</option>
+                            <option value="padel">🎾 Padel</option>
+                            <option value="outros esportes">🏅 Outros Esportes</option>
+                        <% } %>
+                    </select>
+                </div>
+                
+                <button type="submit">🔍 Buscar</button>
+                
+                <% if (buscaTermo) { %>
+                    <div class="search-results-info active">
+                        📌 <strong><%= postagens && postagens.length > 0 ? postagens.length + ' resultado' + (postagens.length !== 1 ? 's' : '') + ' encontrado' + (postagens.length !== 1 ? 's' : '') : 'Nenhum resultado' %></strong> para "<%= buscaTermo %>"
+                        <a href="/admin/feed/lst" style="margin-left: 10px; color: #0a4199; text-decoration: underline; font-weight: bold;">Limpar busca</a>
+                    </div>
                 <% } %>
-            </select>
-            <button type="submit">Filtrar</button>
-        </form>
+            </form>
+        </div>
+
+        <!-- Feed Content -->
+        <% function getVideoMimeType(url) {
+            if (/\.mp4$/i.test(url)) return 'video/mp4';
+            if (/\.webm$/i.test(url)) return 'video/webm';
+            if (/\.ogg$/i.test(url)) return 'video/ogg';
+            return 'video/mp4';
+        } %>
+
+        <% if (postagens && postagens.length) { %>
+            <div class="feed-content">
+                <div class="feed-title">Aulas & Postagens Recentes</div>
+                <div class="feed feed-scroll">
+                    <% postagens.forEach(function(postagem) { %>
+                        <div class="social-post">
+                            <div class="post-header">
+                                <div class="avatar">
+                                    <% const fotoAutor = postagem.autorFoto || (postagem.autorId && postagem.autorId.foto); %>
+                                    <% if (fotoAutor) { %>
+                                        <img src="<%= fotoAutor %>" alt="Foto do autor">
+                                    <% } else { %>
+                                        <%= (postagem.autorNome || 'U').slice(0, 1) %>
+                                    <% } %>
+                                </div>
+                                <div>
+                                    <div class="post-user"><%= postagem.autorNome || 'Usuario sem nome' %></div>
+                                    <% const dataPost = postagem.createdAt ? new Date(postagem.createdAt) : postagem._id.getTimestamp(); %>
+                                    <div class="post-meta">📅 <%= dataPost.toLocaleString('pt-BR') %></div>
+                                    <div class="post-meta">📌 <%= postagem.categoria ? postagem.categoria.charAt(0).toUpperCase() + postagem.categoria.slice(1) : 'N/A' %></div>
+                                </div>
+                            </div>
+                            <div class="post-body">
+                                <h3><%= postagem.titulo %></h3>
+                                <p><%= postagem.descricao %></p>
+                                <% const medias = Array.isArray(postagem.midia) ? postagem.midia : (postagem.midia ? [postagem.midia] : []); %>
+                                <% if (medias.length) { %>
+                                    <div class="post-media">
+                                        <% medias.forEach(function(src) { %>
+                                            <% const isVideo = /\.(mp4|webm|ogg)$/i.test(src); %>
+                                            <% if (isVideo) { %>
+                                                <video controls preload="metadata">
+                                                    <source src="<%= src %>" type="<%= getVideoMimeType(src) %>">
+                                                    Seu navegador nao suporta este video.
+                                                </video>
+                                            <% } else { %>
+                                                <a href="<%= src %>" target="_blank" rel="noopener noreferrer">
+                                                    <img src="<%= src %>" alt="Midia da postagem">
+                                                </a>
+                                            <% } %>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
+                                <div class="post-actions">
+                                    <% const likedByUser = user && postagem.curtidas && postagem.curtidas.some((like) => like.toString() === user.id); %>
+                                    <form action="/admin/postagem/like/<%= postagem._id %>" method="post" class="post-action-form">
+                                        <button type="submit" class="btn-action">
+                                            <%= likedByUser ? '❤️ Descurtir' : '🤍 Curtir' %> (<%= postagem.curtidas ? postagem.curtidas.length : 0 %>)
+                                        </button>
+                                    </form>
+                                    <span class="comment-count">💬 <%= postagem.comentarios ? postagem.comentarios.length : 0 %> comentários</span>
+                                </div>
+                                <div class="comments-list">
+                                    <% if (postagem.comentarios && postagem.comentarios.length) { %>
+                                        <% postagem.comentarios.slice(-3).reverse().forEach(function(comment) { %>
+                                            <div class="comment-item">
+                                                <strong><%= comment.autorNome %></strong> <span class="comment-meta">(<%= comment.autorRole === 'professor' ? '👨‍🏫' : '👨‍🎓' %>)</span>
+                                                <p class="comment-text-display-<%= comment._id %>"><%= comment.texto %></p>
+                                                <div class="comment-actions">
+                                                    <button type="button" class="btn-action btn-reply" onclick="toggleReplyForm('<%= postagem._id %>', '<%= comment._id %>')">↩️ Responder</button>
+                                                    <% if (user && String(comment.autorId) === String(user.id)) { %>
+                                                        <button type="button" class="btn-action" onclick="toggleEditComment('<%= comment._id %>', '<%= postagem._id %>')">✏️ Editar</button>
+                                                        <a href="/admin/postagem/comment/del/<%= postagem._id %>/<%= comment._id %>" class="btn-action btn-danger" onclick="return confirm('Tem certeza que deseja excluir este comentário?');">🗑️ Excluir</a>
+                                                    <% } %>
+                                                </div>
+                                                <form action="/admin/postagem/comment/edt/<%= postagem._id %>/<%= comment._id %>" method="post" class="comment-edit-form-<%= comment._id %>" style="display:none;">
+                                                    <textarea name="texto" required><%= comment.texto %></textarea>
+                                                    <div class="comment-edit-buttons">
+                                                        <button type="submit" class="btn-action">✅ Salvar</button>
+                                                        <button type="button" class="btn-action" onclick="toggleEditComment('<%= comment._id %>', '<%= postagem._id %>')">❌ Cancelar</button>
+                                                    </div>
+                                                </form>
+
+                                                <!-- Respostas -->
+                                                <% if (comment.respostas && comment.respostas.length) { %>
+                                                    <div class="replies-list">
+                                                        <% comment.respostas.forEach(function(reply) { %>
+                                                            <div class="reply-item">
+                                                                <strong><%= reply.autorNome %></strong> <span class="comment-meta">(<%= reply.autorRole === 'professor' ? '👨‍🏫' : '👨‍🎓' %>)</span>
+                                                                <p class="reply-text-display-<%= reply._id %>"><%= reply.texto %></p>
+                                                                <% if (user && String(reply.autorId) === String(user.id)) { %>
+                                                                    <div class="reply-actions">
+                                                                        <button type="button" class="btn-action" onclick="toggleEditReply('<%= reply._id %>')">✏️ Editar</button>
+                                                                        <a href="/admin/postagem/comment/reply/del/<%= postagem._id %>/<%= comment._id %>/<%= reply._id %>" class="btn-action btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta resposta?');">🗑️ Excluir</a>
+                                                                    </div>
+                                                                    <form action="/admin/postagem/comment/reply/edt/<%= postagem._id %>/<%= comment._id %>/<%= reply._id %>" method="post" class="reply-edit-form-<%= reply._id %>" style="display:none;">
+                                                                        <textarea name="texto" required><%= reply.texto %></textarea>
+                                                                        <div class="reply-edit-buttons">
+                                                                            <button type="submit" class="btn-action">✅ Salvar</button>
+                                                                            <button type="button" class="btn-action" onclick="toggleEditReply('<%= reply._id %>')">❌ Cancelar</button>
+                                                                        </div>
+                                                                    </form>
+                                                                <% } %>
+                                                            </div>
+                                                        <% }) %>
+                                                    </div>
+                                                <% } %>
+
+                                                <!-- Formulário de resposta -->
+                                                <form action="/admin/postagem/comment/reply/<%= postagem._id %>/<%= comment._id %>" method="post" class="reply-form-<%= comment._id %>" style="display:none;">
+                                                    <textarea name="texto" placeholder="Adicione uma resposta..." required></textarea>
+                                                    <div class="reply-form-buttons">
+                                                        <button type="submit" class="btn-action">✅ Enviar resposta</button>
+                                                        <button type="button" class="btn-action" onclick="toggleReplyForm('<%= postagem._id %>', '<%= comment._id %>')">❌ Cancelar</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        <% }) %>
+                                    <% } %>
+                                </div>
+                                <form action="/admin/postagem/comment/<%= postagem._id %>" method="post" class="comment-form">
+                                    <textarea name="texto" placeholder="💬 Adicione um comentário..." required></textarea>
+                                    <button type="submit" class="btn-action">📤 Enviar comentário</button>
+                                </form>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="no-posts">
+                <h2>📭 Nenhuma postagem encontrada</h2>
+                <p>Ainda não há aulas nesta categoria. Volte mais tarde ou explore outras categorias!</p>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        function toggleEditComment(commentId, postagemId) {
+            const textDisplay = document.querySelector(`.comment-text-display-${commentId}`);
+            const editForm = document.querySelector(`.comment-edit-form-${commentId}`);
+            
+            if (editForm.style.display === 'none') {
+                editForm.style.display = 'block';
+                textDisplay.style.display = 'none';
+            } else {
+                editForm.style.display = 'none';
+                textDisplay.style.display = 'block';
+            }
+        }
+
+        function toggleReplyForm(postagemId, commentId) {
+            const replyForm = document.querySelector(`.reply-form-${commentId}`);
+            
+            if (replyForm.style.display === 'none') {
+                replyForm.style.display = 'block';
+            } else {
+                replyForm.style.display = 'none';
+            }
+        }
+
+        function toggleEditReply(replyId) {
+            const textDisplay = document.querySelector(`.reply-text-display-${replyId}`);
+            const editForm = document.querySelector(`.reply-edit-form-${replyId}`);
+            
+            if (editForm.style.display === 'none') {
+                editForm.style.display = 'block';
+                textDisplay.style.display = 'none';
+            } else {
+                editForm.style.display = 'none';
+                textDisplay.style.display = 'block';
+            }
+        }
+    </script>
+
+</body>
+</html>
 
         <% function getVideoMimeType(url) {
             if (/\.mp4$/i.test(url)) return 'video/mp4';

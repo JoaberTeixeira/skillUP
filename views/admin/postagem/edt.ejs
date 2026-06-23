@@ -6,59 +6,254 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Postagem</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .postagem-container {
+            max-width: 800px;
+            margin: 100px auto 40px;
+        }
+
+        .postagem-header {
+            background: linear-gradient(135deg, #09316e 0%, #92C8E9 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .postagem-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .postagem-header p {
+            font-size: 14px;
+            opacity: 0.95;
+            margin: 0;
+        }
+
+        .postagem-form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .post-author {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #92C8E9;
+            color: #09316e;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .postagem-form-card label {
+            display: block;
+            font-weight: bold;
+            color: #09316e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .postagem-form-card input[type="text"],
+        .postagem-form-card input[type="file"],
+        .postagem-form-card select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            margin-bottom: 8px;
+            background: white;
+            color: #333;
+        }
+
+        .postagem-form-card input[type="text"]:focus,
+        .postagem-form-card input[type="file"]:focus,
+        .postagem-form-card select:focus {
+            border-color: #92C8E9;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(146, 200, 233, 0.1);
+        }
+
+        .postagem-form-card input[type="text"]:read-only {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .postagem-form-card select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23333' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .media-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            margin-top: 15px;
+        }
+
+        .media-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .media-preview {
+            width: 100%;
+            height: auto;
+            max-height: 300px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .media-item video {
+            width: 100%;
+            height: auto;
+            max-height: 300px;
+        }
+
+        .postagem-form-card button {
+            background: linear-gradient(135deg, #09316e 0%, #0a4199 100%);
+            color: white;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .postagem-form-card button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(9, 49, 110, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .postagem-container {
+                margin: 100px 15px 40px;
+            }
+
+            .postagem-header {
+                padding: 30px 20px;
+            }
+
+            .postagem-header h1 {
+                font-size: 24px;
+            }
+
+            .postagem-form-card {
+                padding: 20px;
+            }
+
+            .media-gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
     <%- include('../cabecario', { titulo: 'SkillUP - sistema de aprendizagem' }) %>
-    <div class="container">
-        <h3>Editar Postagem</h3>
+    
+    <div class="postagem-container">
+        <div class="postagem-header">
+            <h1>✏️ Editar Postagem</h1>
+            <p>Atualize o conteúdo da sua postagem</p>
+        </div>
 
-        <form action="/admin/postagem/edt/<%= postagem._id %>" method="post" enctype="multipart/form-data">
-            <label>Autor:</label>
-            <input type="text" value="<%= postagem.autorNome || 'Sem autor' %> (<%= postagem.autorRole || '-' %>)" readonly>
+        <div class="postagem-form-card">
+            <form action="/admin/postagem/edt/<%= postagem._id %>" method="post" enctype="multipart/form-data">
+                <div class="form-section">
+                    <label>Autor:</label>
+                    <input type="text" value="<%= postagem.autorNome || 'Sem autor' %> (<%= postagem.autorRole || '-' %>)" readonly>
+                </div>
 
-            <label for="titulo">Titulo:</label>
-            <input type="text" id="titulo" name="titulo" value="<%= postagem.titulo %>" required>
+                <div class="form-section">
+                    <label for="titulo">Título da Postagem:</label>
+                    <input type="text" id="titulo" name="titulo" value="<%= postagem.titulo %>" required>
+                </div>
 
-            <label for="midia">Mídia (imagem ou vídeo):</label>
-            <% const midiasAtuais = Array.isArray(postagem.midia) ? postagem.midia : (postagem.midia ? [postagem.midia] : []); %>
-            <% if (midiasAtuais.length) { %>
-                <% midiasAtuais.forEach(function(src) { %>
-                    <% const isVideo = /\.(mp4|webm|ogg)$/i.test(src); %>
-                    <% if (isVideo) { %>
-                        <video src="<%= src %>" controls class="media-preview"></video>
+                <div class="form-section">
+                    <label for="categoria">Categoria do Esporte:</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="basquete" <%= postagem.categoria === 'basquete' ? 'selected' : '' %>>🏀 Basquete</option>
+                        <option value="volei" <%= postagem.categoria === 'volei' ? 'selected' : '' %>>🏐 Vôlei</option>
+                        <option value="futsal" <%= postagem.categoria === 'futsal' ? 'selected' : '' %>>⚽ Futsal</option>
+                        <option value="futebol" <%= postagem.categoria === 'futebol' ? 'selected' : '' %>>⚽ Futebol</option>
+                        <option value="handebol" <%= postagem.categoria === 'handebol' ? 'selected' : '' %>>🤾 Handebol</option>
+                        <option value="tenis" <%= postagem.categoria === 'tenis' ? 'selected' : '' %>>🎾 Tênis</option>
+                        <option value="futvolei" <%= postagem.categoria === 'futvolei' ? 'selected' : '' %>>🏐 Futevôlei</option>
+                        <option value="volei de areia" <%= postagem.categoria === 'volei de areia' ? 'selected' : '' %>>🏖️ Vôlei de Areia</option>
+                        <option value="padel" <%= postagem.categoria === 'padel' ? 'selected' : '' %>>🎾 Padel</option>
+                        <option value="outros esportes" <%= postagem.categoria === 'outros esportes' ? 'selected' : '' %>>🏆 Outros Esportes</option>
+                    </select>
+                </div>
+
+                <div class="form-section">
+                    <label for="descricao">Descrição:</label>
+                    <input type="text" id="descricao" name="descricao" value="<%= postagem.descricao %>" required>
+                </div>
+
+                <div class="form-section">
+                    <label>Mídia Atual:</label>
+                    <% const midiasAtuais = Array.isArray(postagem.midia) ? postagem.midia : (postagem.midia ? [postagem.midia] : []); %>
+                    <% if (midiasAtuais.length) { %>
+                        <div class="media-gallery">
+                            <% midiasAtuais.forEach(function(src) { %>
+                                <% const isVideo = /\.(mp4|webm|ogg)$/i.test(src); %>
+                                <div class="media-item">
+                                    <% if (isVideo) { %>
+                                        <video src="<%= src %>" controls class="media-preview"></video>
+                                    <% } else { %>
+                                        <a href="<%= src %>" target="_blank" rel="noopener noreferrer">
+                                            <img src="<%= src %>" alt="Mídia atual" class="media-preview">
+                                        </a>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        </div>
                     <% } else { %>
-                        <a href="<%= src %>" target="_blank" rel="noopener noreferrer">
-                            <img src="<%= src %>" alt="Midia atual" class="media-preview">
-                        </a>
+                        <p style="color: #999; font-style: italic;">Sem mídia atualmente.</p>
                     <% } %>
-                <% }) %>
-            <% } else { %>
-                <p>Sem mídia atualmente.</p>
-            <% } %>
-            <input type="file" id="midia" name="midia" accept="image/*,video/*" multiple>
-            <p class="hint">Adicione novos arquivos para anexar à postagem.</p>
+                </div>
 
-            <label for="descricao">Descricao:</label>
-            <input type="text" id="descricao" name="descricao" value="<%= postagem.descricao %>" required>
+                <div class="form-section">
+                    <label for="midia">Adicionar Novas Mídias:</label>
+                    <input type="file" id="midia" name="midia" accept="image/*,video/*" multiple>
+                    <p class="hint">📎 Adicione novos arquivos para anexar à postagem.</p>
+                </div>
 
-            <label for="categoria">Categoria:</label>
-            <select id="categoria" name="categoria" required>
-                <option value="basquete" <%= postagem.categoria === 'basquete' ? 'selected' : '' %>>Basquete</option>
-                <option value="volei" <%= postagem.categoria === 'volei' ? 'selected' : '' %>>Volei</option>
-                <option value="futsal" <%= postagem.categoria === 'futsal' ? 'selected' : '' %>>Futsal</option>
-                <option value="futebol" <%= postagem.categoria === 'futebol' ? 'selected' : '' %>>Futebol</option>
-                <option value="handebol" <%= postagem.categoria === 'handebol' ? 'selected' : '' %>>Handebol</option>
-                <option value="tenis" <%= postagem.categoria === 'tenis' ? 'selected' : '' %>>Tenis</option>
-                <option value="futvolei" <%= postagem.categoria === 'futvolei' ? 'selected' : '' %>>Futvolei</option>
-                <option value="volei de areia" <%= postagem.categoria === 'volei de areia' ? 'selected' : '' %>>Volei de Areia</option>
-                <option value="padel" <%= postagem.categoria === 'padel' ? 'selected' : '' %>>Padel</option>
-                <option value="outros esportes" <%= postagem.categoria === 'outros esportes' ? 'selected' : '' %>>Outros Esportes</option>
-            </select>
-
-            <button type="submit">Salvar</button>
-        </form>
+                <button type="submit">💾 Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
 
 </body>
 

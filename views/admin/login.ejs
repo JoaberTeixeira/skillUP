@@ -2,29 +2,193 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SkillUP</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .login-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 130px);
+            padding: 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #09316e 0%, #92C8E9 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .login-header p {
+            font-size: 14px;
+            opacity: 0.95;
+            margin: 0;
+        }
+
+        .login-body {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-card label {
+            display: block;
+            font-weight: bold;
+            color: #09316e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .login-card input[type="email"],
+        .login-card input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box;
+            background: white;
+        }
+
+        .login-card input[type="email"]:focus,
+        .login-card input[type="password"]:focus {
+            outline: none;
+            border-color: #92C8E9;
+            box-shadow: 0 0 0 3px rgba(146, 200, 233, 0.1);
+        }
+
+        .login-error {
+            background: #ff6b6b;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .login-card button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #09316e 0%, #0a4199 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-card button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(9, 49, 110, 0.3);
+        }
+
+        .login-footer {
+            padding: 20px 30px;
+            background: #f9f9f9;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .login-footer p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .login-footer a {
+            color: #09316e;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .login-footer a:hover {
+            color: #92C8E9;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                border-radius: 12px;
+            }
+
+            .login-header {
+                padding: 30px 20px;
+            }
+
+            .login-header h1 {
+                font-size: 24px;
+            }
+
+            .login-body {
+                padding: 30px 20px;
+            }
+
+            .login-footer {
+                padding: 15px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
     <%- include('cabecario', { titulo: 'Acesso ao Sistema' }) %>
 
-    <div class="login-container">
-        <h1>Entrar no Sistema</h1>
-        <% if (error) { %>
-            <p class="login-error"><%= error %></p>
-        <% } %>
-        <form method="post" action="/login">
-            <div>
-                <label>Email:</label>
-                <input type="email" name="email" required>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🔐 Entrar</h1>
+                <p>Acesse sua conta SkillUP</p>
             </div>
-            <div>
-                <label>Senha:</label>
-                <input type="password" name="senha" required>
+
+            <div class="login-body">
+                <% if (error) { %>
+                    <p class="login-error">❌ <%= error %></p>
+                <% } %>
+
+                <form method="post" action="/login">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="senha">Senha:</label>
+                        <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                    </div>
+
+                    <button type="submit">🚀 Entrar</button>
+                </form>
             </div>
-            
-            <button type="submit">Entrar</button>
-        </form>
+
+            <div class="login-footer">
+                <p>Não tem conta? <a href="/register">Crie uma agora</a></p>
+            </div>
+        </div>
     </div>
 </body>
 </html>

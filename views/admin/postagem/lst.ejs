@@ -4,92 +4,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Postagens</title>
+    <title>Minhas Postagens</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .postagem-container {
+            max-width: 900px;
+            margin: 100px auto 40px;
+        }
+
+        .postagem-header {
+            background: linear-gradient(135deg, #09316e 0%, #92C8E9 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .postagem-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .postagem-header p {
+            font-size: 14px;
+            opacity: 0.95;
+            margin: 0;
+        }
+
+        .postagens-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .postagem-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            border: 1px solid #f0f0f0;
+        }
+
+        .postagem-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .postagem-card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f4f8 100%);
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .postagem-info {
+            flex: 1;
+        }
+
+        .postagem-titulo {
+            font-size: 18px;
+            font-weight: bold;
+            color: #09316e;
+            margin-bottom: 8px;
+        }
+
+        .postagem-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: #666;
+            flex-wrap: wrap;
+        }
+
+        .categoria-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #92C8E9;
+            color: white;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .postagem-card-body {
+            padding: 20px;
+        }
+
+        .postagem-descricao {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .postagem-media {
+            margin-bottom: 15px;
+        }
+
+        .media-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .media-item {
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f5f5f5;
+            min-height: 150px;
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .media-thumb {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .postagem-card-footer {
+            padding: 15px 20px;
+            background: #f9f9f9;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-edit {
+            background: #92C8E9;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #7ab3d6;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #ee5a52;
+            transform: translateY(-1px);
+        }
+
+        .add-postagem-section {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #9AF995 0%, #7ae080 100%);
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(154, 249, 149, 0.2);
+        }
+
+        .add-postagem-section h2 {
+            color: white;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .add-postagem-btn {
+            background: white;
+            color: #09316e;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .add-postagem-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            color: #09316e;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .permission-message {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #92C8E9;
+            color: #09316e;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .postagem-container {
+                margin: 100px 15px 40px;
+            }
+
+            .postagem-header {
+                padding: 30px 20px;
+            }
+
+            .postagem-header h1 {
+                font-size: 24px;
+            }
+
+            .postagem-card-header {
+                flex-direction: column;
+            }
+
+            .postagem-card-footer {
+                flex-direction: column;
+            }
+
+            .btn-edit,
+            .btn-delete {
+                width: 100%;
+                text-align: center;
+            }
+
+            .media-gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
     <%- include('../cabecario', { titulo: 'SkillUP - sistema de aprendizagem' }) %>
 
-    <div class="container">
-        <% function getVideoMimeType(url) {
-            if (/\.mp4$/i.test(url)) return 'video/mp4';
-            if (/\.webm$/i.test(url)) return 'video/webm';
-            if (/\.ogg$/i.test(url)) return 'video/ogg';
-            return 'video/mp4';
-        } %>
-        <h3>Postagens</h3>
-
-        <table class="player-table">
-            <thead>
-                <tr>
-                    <th>Titulo</th>
-                    <th>Categoria</th>
-                    <th>Midia</th>
-                    <th>Descricao</th>
-                    <th>Autor</th>
-                    <th>Opções</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (postagens && postagens.length) { %>
-                    <% postagens.forEach(function(postagem) { %>
-                        <tr>
-                            <td><%= postagem.titulo %></td>
-                            <td><%= postagem.categoria ? postagem.categoria.charAt(0).toUpperCase() + postagem.categoria.slice(1) : 'N/A' %></td>
-                            <td>
-                                <% const medias = Array.isArray(postagem.midia) ? postagem.midia : (postagem.midia ? [postagem.midia] : []); %>
-                                <% if (medias.length) { %>
-                                    <div class="media-container">
-                                        <% medias.forEach(function(src) { %>
-                                            <% const isVideo = /\.(mp4|webm|ogg)$/i.test(src); %>
-                                            <% if (isVideo) { %>
-                                                <video controls preload="metadata" class="media-item">
-                                                    <source src="<%= src %>" type="<%= getVideoMimeType(src) %>">
-                                                    Seu navegador nao suporta este video.
-                                                </video>
-                                            <% } else { %>
-                                                <a href="<%= src %>" target="_blank" rel="noopener noreferrer" class="media-link">
-                                                    <img src="<%= src %>" alt="Midia" class="media-thumb">
-                                                </a>
-                                            <% } %>
-                                        <% }) %>
-                                    </div>
-                                <% } else { %>
-                                    <span>Sem mídia</span>
-                                <% } %>
-                            </td>
-                            <td><%= postagem.descricao %></td>
-                            <td class="author-cell">
-                                <% const autorFoto = postagem.autorFoto || (user && user.foto); %>
-                                <% if (autorFoto) { %>
-                                    <img src="<%= autorFoto %>" alt="Foto do autor" class="avatar-mini">
-                                <% } else { %>
-                                    <span class="avatar-mini avatar-fallback"><%= (postagem.autorNome || 'U').slice(0, 1) %></span>
-                                <% } %>
-                                <span><%= postagem.autorNome || 'Sem autor' %> (<%= postagem.autorRole || '-' %>)</span>
-                            </td>
-                            <td>
-                                <a href="/admin/postagem/edt/<%= postagem._id %>" class="edit">Editar</a>
-                                <a href="/admin/postagem/del/<%= postagem._id %>" class="delete" onclick="return confirm('Tem certeza que deseja excluir esta postagem?');">Excluir</a>
-                            </td>
-                        </tr>
-                    <% }); %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="6">Nenhuma postagem cadastrada.</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
+    <div class="postagem-container">
+        <div class="postagem-header">
+            <h1>📝 Minhas Postagens</h1>
+            <p>Gerencie suas postagens e compartilhe conhecimento</p>
+        </div>
 
         <% if (user && user.role === 'professor') { %>
-            <div class="add-player">
-                <a href="/admin/postagem/add" class="btn">Adicionar postagem</a>
-            </div>
+            <% if (postagens && postagens.length) { %>
+                <div class="postagens-grid">
+                    <% postagens.forEach(function(postagem) { %>
+                        <div class="postagem-card">
+                            <div class="postagem-card-header">
+                                <div class="postagem-info">
+                                    <div class="postagem-titulo"><%= postagem.titulo %></div>
+                                    <div class="postagem-meta">
+                                        <span class="categoria-badge"><%= postagem.categoria ? postagem.categoria.charAt(0).toUpperCase() + postagem.categoria.slice(1) : 'N/A' %></span>
+                                        <span>👤 <%= postagem.autorNome || 'Sem autor' %></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="postagem-card-body">
+                                <p class="postagem-descricao"><%= postagem.descricao %></p>
+                                
+                                <% const medias = Array.isArray(postagem.midia) ? postagem.midia : (postagem.midia ? [postagem.midia] : []); %>
+                                <% if (medias.length) { %>
+                                    <div class="postagem-media">
+                                        <div class="media-gallery">
+                                            <% medias.forEach(function(src) { %>
+                                                <% const isVideo = /\.(mp4|webm|ogg)$/i.test(src); %>
+                                                <div class="media-item">
+                                                    <% if (isVideo) { %>
+                                                        <video controls preload="metadata">
+                                                            <source src="<%= src %>" type="video/mp4">
+                                                            Seu navegador não suporta este vídeo.
+                                                        </video>
+                                                    <% } else { %>
+                                                        <a href="<%= src %>" target="_blank" rel="noopener noreferrer">
+                                                            <img src="<%= src %>" alt="Mídia" class="media-thumb">
+                                                        </a>
+                                                    <% } %>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <div class="postagem-card-footer">
+                                <a href="/admin/postagem/edt/<%= postagem._id %>" class="btn-edit">✏️ Editar</a>
+                                <a href="/admin/postagem/del/<%= postagem._id %>" class="btn-delete" onclick="return confirm('Tem certeza que deseja excluir esta postagem?');">🗑️ Excluir</a>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+
+                <div class="add-postagem-section">
+                    <h2>Quer compartilhar mais conhecimento?</h2>
+                    <a href="/admin/postagem/add" class="add-postagem-btn">➕ Criar Nova Postagem</a>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <h3>Você ainda não tem postagens</h3>
+                    <p>Compartilhe seus conhecimentos e experiências com a comunidade SkillUP</p>
+                    <a href="/admin/postagem/add" class="add-postagem-btn">➕ Criar Primeira Postagem</a>
+                </div>
+            <% } %>
         <% } else { %>
-            <p class="page-subtitle">Apenas professores podem criar postagens.</p>
+            <div class="permission-message">
+                <strong>⚠️ Apenas professores podem criar postagens</strong>
+                <p style="margin-top: 10px;">Se você é um professor, faça login com sua conta de professor para acessar essa funcionalidade.</p>
+            </div>
+
+            <% if (postagens && postagens.length) { %>
+                <div class="postagens-grid">
+                    <% postagens.forEach(function(postagem) { %>
+                        <div class="postagem-card">
+                            <div class="postagem-card-header">
+                                <div class="postagem-info">
+                                    <div class="postagem-titulo"><%= postagem.titulo %></div>
+                                    <div class="postagem-meta">
+                                        <span class="categoria-badge"><%= postagem.categoria ? postagem.categoria.charAt(0).toUpperCase() + postagem.categoria.slice(1) : 'N/A' %></span>
+                                        <span>👤 <%= postagem.autorNome || 'Sem autor' %></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="postagem-card-body">
+                                <p class="postagem-descricao"><%= postagem.descricao %></p>
+                                
+                                <% const medias = Array.isArray(postagem.midia) ? postagem.midia : (postagem.midia ? [postagem.midia] : []); %>
+                                <% if (medias.length) { %>
+                                    <div class="postagem-media">
+                                        <div class="media-gallery">
+                                            <% medias.forEach(function(src) { %>
+                                                <% const isVideo = /\.(mp4|webm|ogg)$/i.test(src); %>
+                                                <div class="media-item">
+                                                    <% if (isVideo) { %>
+                                                        <video controls preload="metadata">
+                                                            <source src="<%= src %>" type="video/mp4">
+                                                            Seu navegador não suporta este vídeo.
+                                                        </video>
+                                                    <% } else { %>
+                                                        <a href="<%= src %>" target="_blank" rel="noopener noreferrer">
+                                                            <img src="<%= src %>" alt="Mídia" class="media-thumb">
+                                                        </a>
+                                                    <% } %>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <h3>Nenhuma postagem disponível</h3>
+                    <p>Os professores ainda não compartilharam conteúdo. Volte mais tarde!</p>
+                </div>
+            <% } %>
         <% } %>
     </div>
 

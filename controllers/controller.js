@@ -153,7 +153,9 @@ export async function perfil(req, res) {
         if (!usuario) {
             return res.status(404).send('Perfil nao encontrado');
         }
-        res.render('admin/perfil/index', { usuario });
+        // Renderiza template específico por role (aluno ou professor)
+        const template = usuario.role === 'professor' ? 'admin/perfil/professor' : 'admin/perfil/aluno';
+        res.render(template, { usuario });
     } catch (err) {
         res.status(500).send('Erro ao carregar perfil: ' + err.message);
     }
@@ -165,41 +167,98 @@ export async function abreedtperfil(req, res) {
         if (!usuario) {
             return res.status(404).send('Perfil nao encontrado');
         }
-        res.render('admin/perfil/edt', { usuario });
+        // Renderiza template de edição específico por role
+        const template = usuario.role === 'professor' ? 'admin/perfil/edt-professor' : 'admin/perfil/edt-aluno';
+        res.render(template, { usuario });
     } catch (err) {
         res.status(500).send('Erro ao carregar edicao de perfil: ' + err.message);
     }
 }
 
 export async function edtperfil(req, res) {
-    const updateData = {
-        nome: req.body.nome,
-        email: req.body.email,
-        bio: req.body.bio,
-        telefone: req.body.telefone
-    };
-
-    if (req.body.senha) {
-        updateData.senha = req.body.senha;
-    }
-
-    if (req.file) {
-        if (!req.file.mimetype.startsWith('image/')) {
-            return res.status(400).send('A foto de perfil deve ser uma imagem.');
-        }
-        updateData.foto = `/uploads/${req.file.filename}`;
-    }
-
     try {
-        const usuario = await Usuario.findByIdAndUpdate(req.session.user.id, updateData, { new: true });
-        if (!usuario) {
+        const usuario = await Usuario.findById(req.session.user.id);
+        
+        const updateData = {
+            nome: req.body.nome,
+            email: req.body.email,
+            bio: req.body.bio,
+            telefone: req.body.telefone,
+            localizacao: req.body.localizacao,
+            dataNascimento: req.body.dataNascimento ? new Date(req.body.dataNascimento) : null,
+            atualizadoEm: new Date()
+        };
+
+        // Processa arrays separados por vírgula
+        if (req.body.especialidades) {
+            updateData.especialidades = req.body.especialidades
+                .split(',')
+                .map(e => e.trim())
+                .filter(e => e.length > 0);
+        }
+
+        if (req.body.interesses) {
+            updateData.interesses = req.body.interesses
+                .split(',')
+                .map(i => i.trim())
+                .filter(i => i.length > 0);
+        }
+
+        // Campos específicos para professor
+        if (usuario.role === 'professor') {
+            updateData.nivelExperiencia = 'intermediario'; // Professores não têm esse campo normalmente
+            
+            if (req.body.experiencia) {
+                updateData.experiencia = parseInt(req.body.experiencia) || 0;
+            }
+
+            if (req.body.certificacoes) {
+                updateData.certificacoes = req.body.certificacoes
+                    .split(',')
+                    .map(c => c.trim())
+                    .filter(c => c.length > 0);
+            }
+
+            if (req.body.locaisAtuacao) {
+                updateData.locaisAtuacao = req.body.locaisAtuacao
+                    .split(',')
+                    .map(l => l.trim())
+                    .filter(l => l.length > 0);
+            }
+
+            if (req.body.horariosDisponíveis) {
+                updateData.horariosDisponíveis = req.body.horariosDisponíveis;
+            }
+        } else {
+            // Campos específicos para aluno
+            if (req.body.nivelExperiencia) {
+                updateData.nivelExperiencia = req.body.nivelExperiencia;
+            }
+        }
+
+        // Atualiza senha se fornecida
+        if (req.body.senha) {
+            updateData.senha = req.body.senha;
+        }
+
+        // Processa upload de foto
+        if (req.file) {
+            if (!req.file.mimetype.startsWith('image/')) {
+                return res.status(400).send('A foto de perfil deve ser uma imagem.');
+            }
+            updateData.foto = `/uploads/${req.file.filename}`;
+        }
+
+        const usuarioAtualizado = await Usuario.findByIdAndUpdate(req.session.user.id, updateData, { new: true });
+        if (!usuarioAtualizado) {
             return res.status(404).send('Perfil nao encontrado');
         }
 
-        req.session.user.nome = usuario.nome;
-        req.session.user.email = usuario.email;
-        req.session.user.role = usuario.role;
-        req.session.user.foto = usuario.foto || null;
+        // Atualiza sessão
+        req.session.user.nome = usuarioAtualizado.nome;
+        req.session.user.email = usuarioAtualizado.email;
+        req.session.user.role = usuarioAtualizado.role;
+        req.session.user.foto = usuarioAtualizado.foto || null;
 
         res.redirect('/admin/perfil');
     } catch (err) {
@@ -674,11 +733,11 @@ export async function addfeed(req, res) {
 
 export async function listarfeed(req, res) {
     try {
-        const feeds = await Feed.find();
+        const feeds = await Feed.find() ;
         const postagens = await Postagem.find()
             .populate('autorId', 'foto')
             .sort({ createdAt: -1, _id: -1 });
-        res.render('admin/feed/lst', { feeds, postagens, categorias: CATEGORIAS_POSTAGEM, selectedCategoria: 'todas' });
+        res.render('admin/feed/lst', { feeds, postagens, categorias: CATEGORIAS_POSTAGEM, selectedCategoria: 'todas', buscaTermo: '' });
     } catch (err) {
         res.status(500).send('Erro ao listar feeds: ' + err.message);
     }
@@ -688,14 +747,29 @@ export async function filtrarfeed(req, res) {
     try {
         const busca = req.body.busca || '';
         const selectedCategoria = req.body.categoria || 'todas';
-        const feedQuery = { adversario: new RegExp(busca, 'i') };
-        const postQuery = selectedCategoria === 'todas' ? {} : { categoria: selectedCategoria };
+        
+        // Construir query para postagens com filtro de categoria
+        let postQuery = {};
+        
+        if (selectedCategoria !== 'todas') {
+            postQuery.categoria = selectedCategoria;
+        }
+        
+        // Se há busca, filtrar por título ou descrição
+        if (busca.trim()) {
+            postQuery.$or = [
+                { titulo: new RegExp(busca, 'i') },
+                { descricao: new RegExp(busca, 'i') },
+                { autorNome: new RegExp(busca, 'i') }
+            ];
+        }
 
-        const feeds = await Feed.find(feedQuery);
+        const feeds = await Feed.find({});
         const postagens = await Postagem.find(postQuery)
             .populate('autorId', 'foto')
             .sort({ createdAt: -1, _id: -1 });
-        res.render('admin/feed/lst', { feeds, postagens, categorias: CATEGORIAS_POSTAGEM, selectedCategoria });
+        
+        res.render('admin/feed/lst', { feeds, postagens, categorias: CATEGORIAS_POSTAGEM, selectedCategoria, buscaTermo: busca });
     } catch (err) {
         res.status(500).send('Erro ao filtrar feeds: ' + err.message);
     }

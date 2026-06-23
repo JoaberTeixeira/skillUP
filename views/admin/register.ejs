@@ -3,46 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Usuário</title>
+    <title>Cadastro - SkillUP</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .register-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 130px);
+            padding: 20px;
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, #92C8E9 0%, #9AF995 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .register-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .register-header p {
+            font-size: 14px;
+            opacity: 0.95;
+            margin: 0;
+        }
+
+        .register-body {
+            padding: 40px 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .register-card label {
+            display: block;
+            font-weight: bold;
+            color: #09316e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .register-card input[type="text"],
+        .register-card input[type="email"],
+        .register-card input[type="password"],
+        .register-card select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box;
+            background: white;
+            color: #333;
+        }
+
+        .register-card input[type="text"]:focus,
+        .register-card input[type="email"]:focus,
+        .register-card input[type="password"]:focus,
+        .register-card select:focus {
+            outline: none;
+            border-color: #92C8E9;
+            box-shadow: 0 0 0 3px rgba(146, 200, 233, 0.1);
+        }
+
+        .register-card select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23333' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .login-error {
+            background: #ff6b6b;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .success-msg {
+            background: #09316e;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .register-card button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #92C8E9 0%, #7ab3d6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .register-card button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(146, 200, 233, 0.3);
+        }
+
+        .register-footer {
+            padding: 20px 30px;
+            background: #f9f9f9;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .register-footer p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .register-footer a {
+            color: #09316e;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .register-footer a:hover {
+            color: #92C8E9;
+            text-decoration: underline;
+        }
+
+        .role-description {
+            background: #f0f8ff;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #92C8E9;
+            color: #09316e;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .register-card {
+                border-radius: 12px;
+            }
+
+            .register-header {
+                padding: 30px 20px;
+            }
+
+            .register-header h1 {
+                font-size: 24px;
+            }
+
+            .register-body {
+                padding: 30px 20px;
+                max-height: none;
+            }
+
+            .register-footer {
+                padding: 15px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
     <%- include('cabecario', { titulo: 'Cadastro de Usuário' }) %>
 
-    <div class="form-container">
-        <h1>Cadastrar Novo Usuário</h1>
+    <div class="register-wrapper">
+        <div class="register-card">
+            <div class="register-header">
+                <h1>✨ Criar Conta</h1>
+                <p>Junte-se à comunidade SkillUP</p>
+            </div>
 
-        <% if (error) { %>
-            <p class="login-error"><%= error %></p>
-        <% } %>
+            <div class="register-body">
+                <% if (error) { %>
+                    <p class="login-error">❌ <%= error %></p>
+                <% } %>
 
-        <% if (success) { %>
-            <p class="success-msg"><%= success %></p>
-        <% } %>
+                <% if (success) { %>
+                    <p class="success-msg">✅ <%= success %></p>
+                <% } %>
 
-        <form method="post" action="/register">
-            <label for="nome">Nome</label>
-            <input id="nome" name="nome" type="text" required value="<%= form.nome || '' %>">
+                <form method="post" action="/register">
+                    <div class="form-group">
+                        <label for="nome">Nome Completo:</label>
+                        <input id="nome" name="nome" type="text" placeholder="Seu nome completo" required value="<%= form.nome || '' %>">
+                    </div>
 
-            <label for="cpf">CPF</label>
-            <input id="cpf" name="cpf" type="text" required value="<%= form.cpf || '' %>">
+                    <div class="form-group">
+                        <label for="cpf">CPF:</label>
+                        <input id="cpf" name="cpf" type="text" placeholder="XXX.XXX.XXX-XX" required value="<%= form.cpf || '' %>">
+                    </div>
 
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" required value="<%= form.email || '' %>">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input id="email" name="email" type="email" placeholder="seu@email.com" required value="<%= form.email || '' %>">
+                    </div>
 
-            <label for="senha">Senha</label>
-            <input id="senha" name="senha" type="password" required>
+                    <div class="form-group">
+                        <label for="senha">Senha:</label>
+                        <input id="senha" name="senha" type="password" placeholder="Crie uma senha forte" required>
+                    </div>
 
-            <label for="role">Perfil</label>
-            <select id="role" name="role" required>
-                <option value="aluno" <%= form.role === 'aluno' ? 'selected' : '' %>>Aluno</option>
-                <option value="professor" <%= form.role === 'professor' ? 'selected' : '' %>>Professor</option>
-            </select>
+                    <div class="form-group">
+                        <label for="role">Tipo de Conta:</label>
+                        <select id="role" name="role" required>
+                            <option value="">Selecione seu perfil...</option>
+                            <option value="aluno" <%= form.role === 'aluno' ? 'selected' : '' %>>👨‍🎓 Aluno - Quero aprender</option>
+                            <option value="professor" <%= form.role === 'professor' ? 'selected' : '' %>>👨‍🏫 Professor - Quero ensinar</option>
+                        </select>
+                        <div class="role-description" id="roleDescription"></div>
+                    </div>
 
-            <button type="submit">Cadastrar</button>
-        </form>
+                    <button type="submit">📝 Criar Minha Conta</button>
+                </form>
+            </div>
 
-        <a href="/login" class="back-link">Voltar ao login</a>
+            <div class="register-footer">
+                <p>Já tem conta? <a href="/login">Entre aqui</a></p>
+            </div>
+        </div>
     </div>
+
+    <script>
+        const roleSelect = document.getElementById('role');
+        const roleDescription = document.getElementById('roleDescription');
+        
+        const descriptions = {
+            'aluno': '👶 Como aluno, você pode acompanhar cursos, ver postagens de professores e aprender novos esportes.',
+            'professor': '👨‍🏫 Como professor, você pode criar aulas, compartilhar conhecimento e receber avaliações dos alunos.'
+        };
+
+        roleSelect.addEventListener('change', function() {
+            const selected = this.value;
+            roleDescription.textContent = descriptions[selected] || '';
+            roleDescription.style.display = selected ? 'block' : 'none';
+        });
+
+        // Mostrar descrição se houver seleção anterior
+        if (roleSelect.value) {
+            roleDescription.textContent = descriptions[roleSelect.value];
+            roleDescription.style.display = 'block';
+        }
+    </script>
 </body>
 </html>
